@@ -14,7 +14,17 @@ from astropy.io import fits
 
 log = logging.getLogger(__name__)
 
-__all__ = ['logged', 'set_xaxis_limits']
+__all__ = ['dict2obj', 'logged', 'set_xaxis_limits']
+
+
+class dict2obj(object):
+    def __init__(self, dic={}):
+        self.__dict__.update(dic)
+
+    def __add__(self, other):
+        for attr in other.__dict__.keys():
+            exec(f"self.{attr}=other.{attr}")
+        return self
 
 
 def set_xaxis_limits(ax, ax1):
