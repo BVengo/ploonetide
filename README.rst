@@ -1,4 +1,4 @@
-Tidal Evolution of Star-Planet-Moon systems (and also ploonets)
+Tidal Evolution of Star-Planet-Moon systems (and ploonets!)
 ==========
 
 **Ploonetide is a friendly-user package for calculating tidal evolution of compact systems with Python.**
