@@ -44,7 +44,11 @@ YEAR = const.Julian_year  # s
 KYEAR = const.kilo * YEAR  # s
 MYEAR = const.mega * YEAR  # s
 GYEAR = const.giga * YEAR  # s
-GCONST = 1.  # const.G  # m^3 / kg s^2
+GCONST = const.G  # m^3 / kg s^2
+
+# General constants
+gas_constant = const.gas_constant  # J mol^-1 K^-1  -->  kg * m^2 s^-2 * mol^-1 * K-1
+stefan_b_constant = const.sigma  # W m^-2 K^-4  -->  kg s^-3 K^-4
 
 # ASTRONOMICAL CONSTANTS
 AU = const.au  # m

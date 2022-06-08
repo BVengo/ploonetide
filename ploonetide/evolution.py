@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-from core import *
+from ploonetide.odes.core import *
 from simulator import Simulation, Variable
 from exoplanets_df import df
 import mr_forecast as forecaster

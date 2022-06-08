@@ -1,8 +1,10 @@
 import numpy as np
-from scipy.stats import norm, truncnorm
+from scipy.stats import norm
 
 # fix the number of different populations
 n_pop = 4
+
+__all__ = ['indicate', 'split_hyper_linear', 'piece_linear', 'ProbRGivenM', 'classification']
 
 
 def indicate(M, trans, i):

@@ -4,8 +4,10 @@ import numpy as np
 from scipy.integrate import odeint
 from tqdm import tqdm
 
+__all__ = ['Variable', 'Simulation']
 
-class Variable():
+
+class Variable:
     def __init__(self, name, v_ini):
         self.name = name
         self.v_ini = v_ini
@@ -17,7 +19,7 @@ class Variable():
         return np.array([self.v_ini])
 
 
-class Simulation():
+class Simulation:
     def __init__(self, variables):
         self.variables = variables
         self.N_variables = len(self.variables)
@@ -38,7 +40,7 @@ class Simulation():
         self.diff_eq_kwargs = kwargs
         self.calc_diff_eqs = calc_diff_eqs
 
-    def set_integration_method(self, method="lsoda"):
+    def set_integration_method(self, method="rk4"):
         '''
         Class method to set the integration method for the simulation
         '''
@@ -59,7 +61,7 @@ class Simulation():
         if self.integration_method == "lsoda":
             sols = odeint(self.calc_diff_eqs, self.quant_vec, tint,
                           args=(self.diff_eq_kwargs,),
-                          mxords=20, mxordn=20, mxstep=500000)
+                          mxords=20, mxordn=20, mxstep=5000)
 
             return tint, sols
 

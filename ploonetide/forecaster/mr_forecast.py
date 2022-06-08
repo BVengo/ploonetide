@@ -1,8 +1,10 @@
-from func import piece_linear, ProbRGivenM, classification
 import numpy as np
-from scipy.stats import norm
-from scipy.stats import truncnorm
 import h5py
+import os
+
+from .. import PACKAGEDIR
+from ploonetide.forecaster import piece_linear, ProbRGivenM, classification
+from scipy.stats import truncnorm
 
 # constant
 mearth2mjup = 317.828
@@ -18,7 +20,7 @@ mupper = 3e5
 n_pop = 4
 
 # read parameter file
-hyper_file = 'fitting_parameters.h5'
+hyper_file = os.path.join(PACKAGEDIR, 'forecaster', 'fitting_parameters.h5')
 h5 = h5py.File(hyper_file, 'r')
 all_hyper = h5['hyper_posterior'][:]
 h5.close()
