@@ -9,6 +9,7 @@ from distutils.util import convert_path
 if 'release' in sys.argv[-1]:
     os.system('python setup.py sdist')
     os.system('pip install twine bumpver')
+    os.system('twine check dist/*')
     os.system('twine upload -r testpypi dist/*')
     os.system('twine upload dist/*')
     os.system('rm -rf dist/ploonetide*')
@@ -39,14 +40,15 @@ with open(ver_path) as ver_file:
 setuptools.setup(
     name='ploonetide',
     version=main_ns['__version__'],
-    description="A package for time series photometry in Python.",
+    description="Calculate tidal interactions in planetary systems",
     long_description=open('README.rst').read(),
+    long_description_content_type='text/markdown',
     author='Jaime Andrés Alvarado Montes',
     author_email='jaime-andres.alvarado-montes@hdr.mq.edu.au',
     url='https://github.com/JAAlvarado-Montes/ploonetide',
     license='MIT',
-    package_dir={'': 'src'},
-    packages=[setuptools.find_packages(where='src')],
+    package_dir={'': 'src/ploonetide'},
+    packages=setuptools.find_packages(where='src/ploonetide/'),
     python_requires='>=3.6',
     install_requires=install_requires,
     extras_require=extras_require,
@@ -54,7 +56,7 @@ setuptools.setup(
     tests_require=tests_require,
     include_package_data=True,
     classifiers=[
-        "Development Status :: 1 - Production/Stable",
+        "Development Status :: 1 - Planning",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",

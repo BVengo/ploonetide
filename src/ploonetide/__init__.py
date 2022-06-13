@@ -20,7 +20,7 @@ from __future__ import absolute_import
 
 import os
 PACKAGEDIR = os.path.abspath(os.path.dirname(__file__))
-MPLSTYLE = '{}/data/ploonetide.mplstyle'.format(PACKAGEDIR)
+# MPLSTYLE = '{}/data/ploonetide.mplstyle'.format(PACKAGEDIR)
 
 # By default Matplotlib is configured to work with a graphical user interface
 # which may require an X11 connection (i.e. a display).  When no display is
@@ -34,5 +34,5 @@ import logging
 log = logging.getLogger(__name__)
 log.addHandler(logging.StreamHandler())
 
-from .ploonetide import *
-from ploonetide.utils import *
+# from .ploonetide import *
+# from ploonetide.utils import *

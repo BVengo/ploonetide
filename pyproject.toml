@@ -10,17 +10,16 @@ readme = "README.rst"
 authors = [{ name = "Jaime A. Alvarado-Montes", email = "rasjaime@gmail.com" }]
 license = { file = "LICENSE" }
 classifiers = [
+    "Development Status :: 1 - Planning",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
 ]
 keywords = ["feed", "reader", "tutorial"]
-dependencies = [
-    "feedparser >= 5.2.0",
-    "html2text",
-    'tomli; python_version < "3.11"',
-]
 requires-python = ">=3.6"
+dynamic = ["dependencies"]
 
 [project.optional-dependencies]
 dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]

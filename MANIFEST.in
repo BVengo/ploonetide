@@ -1,4 +1,3 @@
 include README.rst AUTHORS.rst CHANGES.rst CONTRIBUTING.rst LICENSE CITATION
 include requirements.txt
-include ploonetide/data/*
-include ploonetide/tests/data/*
+include ploonetide/data/
