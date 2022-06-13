@@ -11,9 +11,8 @@ from ploonetide.utils import dict2obj
 # ############################################################
 # CONSTANTS
 # ############################################################
-# Exponent of radius mass-scaling law
+# Exponent and coefficients of radius mass-scaling law
 ALPHAR = 0.156
-# Coefficients of radius time-scaling law
 A = 3.964
 B = -0.064
 C = 3.364
@@ -32,9 +31,6 @@ GR = 0.2  # None
 #############################################################
 # CONSTANTS
 #############################################################
-
-# NUMERICAL CONSTANTS
-RAD = 1 / const.degree
 
 # PHYSICAL CONSTANTS
 MIN = const.minute  # s
@@ -85,4 +81,4 @@ PLANETS = dict2obj(dict(
                           P=164.8 * YEAR,  # s
                           Prot=16.11 * HOUR,  # s
                           alpha=0.35,
-                          beta=0.131))))
+                          beta=0.131,))))

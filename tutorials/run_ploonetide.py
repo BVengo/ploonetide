@@ -9,14 +9,15 @@ from ploonetide.utils.constants import GYEAR, DAY, MSUN, AU
 # ************************************************************
 # INTEGRATION
 # ************************************************************
-simulation = TidalSimulation(system='planet-moon',
-                             planet_orbperiod=20,
-                             moon_eccentricty=0.0,
-                             moon_semimaxis=10,
-                             planet_size_evolution=False,
-                             planet_internal_evolution=False,
-                             planet_core_dissipation=False,
-                             star_internal_evolution=False)
+simulation = TidalSimulation(
+    system='planet-moon',
+    planet_orbperiod=20,
+    moon_eccentricty=0.0,
+    moon_semimaxis=10,
+    planet_size_evolution=False,
+    planet_internal_evolution=False,
+    planet_core_dissipation=False,
+)
 
 
 integration_time = 1 * simulation.stellar_lifespan
@@ -48,20 +49,6 @@ aps = mean2axis(nps, simulation.star_mass, simulation.planet_mass)
 # ************************************************************
 fate = find_moon_fate(times, ams, simulation.moon_roche_radius, simulation.planet_orbperiod,
                       simulation.planet_mass, simulation.star_mass)
-
-
-ams_list = np.array(ams)
-aps_list = np.array(aps)
-nms_list = np.array(nms)
-nps_list = np.array(nps)
-ops_list = np.array(ops)
-Tms_list = np.array(Tms)
-Ems_list = np.array(Ems)
-
-# if simulation.moon_eccentricty != 0.0:
-#     ems_list = np.array(ems)
-
-# roche_lims = np.array(roche_lims)
 
 # nps = solutions[:, 0]
 # oms = solutions[:, 1]
@@ -100,8 +87,8 @@ markersize = 7.
 ticksize = 6.
 
 x = times / GYEAR
-y = ams_list / simulation.moon_roche_radius
-z = Tms_list
+y = ams / simulation.moon_roche_radius
+z = Tms
 
 print(y)
 

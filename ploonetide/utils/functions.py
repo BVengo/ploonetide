@@ -33,7 +33,7 @@ def k2Q_star_envelope(alpha, beta, epsilon):
     return k2q1
 
 
-def k2Q_planet_envelope(alpha: float, beta: float, epsilon: float):
+def k2Q_planet_envelope(alpha, beta, epsilon):
     """Calculate tidal heat function for the planet's envelope (Source: Mathis, 2015).
 
       Args:
