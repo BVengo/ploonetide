@@ -8,6 +8,16 @@ from ploonetide.utils.constants import GCONST
 # DIFFERENTIAL EQUATIONS
 #############################################################
 def depdt(q, t, parameters):
+    """Define the differential equation for the eccentricity of the planet.
+
+    Args:
+        q (list): vector defining ep
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: eccentricity of the planet.
+    """
     e = q[0]
 
     # Primary properties
@@ -29,8 +39,6 @@ def depdt(q, t, parameters):
     Mp = parameters['mp']
 
     # Secondary properties planet
-    mpo = parameters['Mp']
-    rpo = parameters['Rp']
     # Rp = Mp2Rp(Mp, mpo, rpo)
     Rp = Mp2Rp(Mp, t, **args)
     epsilon_planet = om / omegaCritic(Mp, Rp)
@@ -40,7 +48,7 @@ def depdt(q, t, parameters):
     if not args['planet_internal_evolution']:
         k2q_planet = args['planet_k2q']
     else:
-        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon_planet, **args)
+        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon_planet)
         k2q_planet_core = k2Q_planet_core(rigidity, alpha_planet, beta_planet, Mp, Rp)
         k2q_planet = k2q_planet_envelope + k2q_planet_core
 
@@ -67,7 +75,18 @@ def depdt(q, t, parameters):
 
     return [depdt]
 
+
 def dnpdt(q, t, parameters):
+    """Define the differential equation for the mean motion of the planet.
+
+    Args:
+        q (list): vector defining np
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: mean motion of the planet
+    """
 
     npp = q[0]
 
@@ -96,8 +115,6 @@ def dnpdt(q, t, parameters):
     Mp = parameters['mp']
 
     # Secondary properties planet
-    mpo = parameters['Mp']
-    rpo = parameters['Rp']
     # Rp = Mp2Rp(Mp, mpo, rpo)
     Rp = Mp2Rp(Mp, t, **args)
 
@@ -108,7 +125,7 @@ def dnpdt(q, t, parameters):
     if not args['planet_internal_evolution']:
         k2q_planet = args['planet_k2q']
     else:
-        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon_planet, **args)
+        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon_planet)
         k2q_planet_core = k2Q_planet_core(rigidity, alpha_planet, beta_planet, Mp, Rp)
         k2q_planet = k2q_planet_envelope + k2q_planet_core
 
@@ -159,6 +176,16 @@ def dnpdt(q, t, parameters):
 
 
 def dompdt(q, t, parameters):
+    """Define the differential equation for the rotational rate of the planet.
+
+    Args:
+        q (list): vector defining op
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: rotational rate of the planet
+    """
 
     om = q[0]
     # Primary properties
@@ -174,8 +201,6 @@ def dompdt(q, t, parameters):
     Mp = parameters['mp']
 
     # Secondary properties planet
-    mpo = parameters['Mp']
-    rpo = parameters['Rp']
     # Rp = Mp2Rp(Mp, mpo, rpo)
     Rp = Mp2Rp(Mp, t, **args)
     epsilon_planet = om / omegaCritic(Mp, Rp)
@@ -185,7 +210,7 @@ def dompdt(q, t, parameters):
     if not args['planet_internal_evolution']:
         k2q_planet = args["planet_k2q"]
     else:
-        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon_planet, **args)
+        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon_planet)
         k2q_planet_core = k2Q_planet_core(rigidity, alpha_planet, beta_planet, Mp, Rp)
         k2q_planet = k2q_planet_envelope + k2q_planet_core
 
@@ -200,6 +225,16 @@ def dompdt(q, t, parameters):
 
 
 def domsdt(q, t, parameters):
+    """Define the differential equation for the rotational rate of the star.
+
+    Args:
+        q (list): vector defining os
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: rotational rate of the star
+    """
 
     os = q[0]
 
@@ -233,7 +268,7 @@ def domsdt(q, t, parameters):
         Ms_ini = Ms
         Ms = Ms - mloss_star(Rs, Ms, os, sun_mass_loss_rate, sun_omega) * t
         beta_star = beta_star_ini * Ms_ini / Ms
-        k2q_star = k2Q_star_envelope(alpha_star, beta_star, epsilon_star, **args)
+        k2q_star = k2Q_star_envelope(alpha_star, beta_star, epsilon_star)
 
     # terms of eccentricity
     f3ee = f3e(e)
@@ -246,7 +281,18 @@ def domsdt(q, t, parameters):
 
     return [domsdt]
 
+
 def dmpdt(q, t, parameters):
+    """Define the differential equation for the planetary mass loss.
+
+    Args:
+        q (list): vector defining mp
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: mass of the planet
+    """
 
     mp = q[0]
 
@@ -258,12 +304,8 @@ def dmpdt(q, t, parameters):
     Rs = parameters['Rs']
     sun_mass_loss_rate = parameters['sun_mass_loss_rate']
     sun_omega = parameters['sun_omega']
-    # planet
-    mpo = parameters['Mp']
-    rpo = parameters['Rp']
 
-    # Dynamic parameter
-    # Dynamic parameter
+    # Secondary properties of the planet
     Mp = parameters['mp']
     # Rp = Mp2Rp(mp, mpo, rpo)
     Rp = Mp2Rp(Mp, t, **args)
@@ -277,8 +319,18 @@ def dmpdt(q, t, parameters):
     dmpdt = -mloss_atmosp - mloss_drag
     return [dmpdt]
 
-def solution_star_planet(q, t, parameters):
 
+def solution_star_planet(q, t, parameters):
+    """Define the coupled differential equation for the system of EDOs.
+
+    Args:
+        q (list): vector defining np
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: mean motion of the planet
+    """
     npp = q[0]
     om = q[1]
     e = q[2]

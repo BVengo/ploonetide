@@ -19,11 +19,11 @@ class dict2obj(object):
 
     def __add__(self, other):
         for attr in other.__dict__.keys():
-            exec(f"self.{attr}=other.{attr}")
+            exec(f'self.{attr}=other.{attr}')
         return self
 
 
-def colorline(x, y, z=None, cmap='copper', linewidth=3, alpha=1.0):
+def colorline(x, y, z=None, cmap='copper', linewidth=2, alpha=1.0):
     """
     http://nbviewer.ipython.org/github/dpsanders/matplotlib-examples/blob/master/colorline.ipynb
     http://matplotlib.org/examples/pylab_examples/multicolored_line.html
@@ -31,14 +31,13 @@ def colorline(x, y, z=None, cmap='copper', linewidth=3, alpha=1.0):
     Optionally specify colors in the array z
     Optionally specify a colormap, a norm function and a line width
     """
-
     # Default colors equally spaced on [0,1]:
     if z is None:
         z = np.linspace(0.0, 1.0, len(x))
 
     # Special case if a single number:
     # to check for numerical input -- this is a hack
-    if not hasattr(z, "__iter__"):
+    if not hasattr(z, '__iter__'):
         z = np.array([z])
 
     z = np.asarray(z)
@@ -59,7 +58,6 @@ def make_segments(x, y):
     for LineCollection: an array of the form numlines x (points per line) x 2 (x
     and y) array
     """
-
     points = np.array([x, y]).T.reshape(-1, 1, 2)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
     return segments
@@ -75,7 +73,7 @@ def set_xaxis_limits(ax, ax1):
 def logged(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        print(func.__name__ + " was called")
+        print(func.__name__ + ' was called')
         return func(*args, **kwargs)
     return wrapper
 
@@ -84,6 +82,14 @@ def logged(func):
 # CANONICAL UNITS TRANSFORMATION
 #############################################################
 def canonic_units(**kwargs):
+    """Convert to chosen units
+
+    Args:
+        **kwargs: keyword arguments
+
+    Returns:
+        float: Unit conversion factors
+    """
     G = Gconst
     if 'uM' in kwargs.keys() and 'uL' in kwargs.keys():
         uT = (kwargs['uL']**3 / (G * kwargs['uM']))**0.5
@@ -111,7 +117,11 @@ def fpi(t, k, ll, n):
 # Util Functions
 # ############################################################
 def fmt(x, pos):
-    """Writes scientific notatino formater for plots
+    """Write scientific notation formater for plots.
+
+    Args:
+        x (int): Description
+        pos (TYPE): Description
 
     Returns:
         string: Scientific notation of input string

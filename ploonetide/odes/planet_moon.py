@@ -10,7 +10,16 @@ from ploonetide.utils.constants import GR, GCONST
 # DIFFERENTIAL EQUATIONS
 #############################################################
 def dnmdt(q, t, parameters):
+    """Define the differential equation for the moon mean motion.
 
+    Args:
+        q (list): vector defining nm
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs..
+
+    Returns:
+        list: Rate of change of the moon mean motion
+    """
     nm = q[0]
 
     # Evolving conditions
@@ -45,7 +54,7 @@ def dnmdt(q, t, parameters):
         k2q_planet_core = 0.0
         if args['planet_core_dissipation']:
             k2q_planet_core = k2Q_planet_core(rigidity, alpha_planet, beta_planet, Mp, Rp)
-        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon, **args)
+        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon)
         k2q_planet = k2q_planet_core + k2q_planet_envelope
 
     if parameters['em_ini'] == 0.0:
@@ -59,7 +68,16 @@ def dnmdt(q, t, parameters):
 
 
 def demdt(q, t, parameters):
+    """Define the differential equation for the eccentricity of the moon.
 
+    Args:
+        q (list): vector defining em
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs..
+
+    Returns:
+        list: Eccentricity of the moon
+    """
     eccm = q[0]
 
     # Evolving conditions
@@ -73,7 +91,7 @@ def demdt(q, t, parameters):
     Mm = parameters['Mm']
 
     # Dynamic parameter
-    op = parameters["op"]
+    op = parameters['op']
     nm = parameters['nm']
 
     # Secondary properties
@@ -91,7 +109,7 @@ def demdt(q, t, parameters):
         k2q_planet_core = 0.0
         if args['planet_core_dissipation']:
             k2q_planet_core = k2Q_planet_core(rigidity, alpha_planet, beta_planet, Mp, Rp)
-        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon, **args)
+        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon)
         k2q_planet = k2q_planet_core + k2q_planet_envelope
 
     demdt = -27. * nm**(13. / 3.) * eccm * k2q_planet * Mm * Rp**5. \
@@ -101,7 +119,16 @@ def demdt(q, t, parameters):
 
 
 def dopdt(q, t, parameters):
+    """Define the differential equation for the rotational rate of the planet.
 
+    Args:
+        q (list): vector defining op
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: rotational rate of the planet
+    """
     op = q[0]
 
     # Evolving conditions
@@ -134,7 +161,7 @@ def dopdt(q, t, parameters):
         k2q_planet_core = 0.0
         if args['planet_core_dissipation']:
             k2q_planet_core = k2Q_planet_core(rigidity, alpha_planet, beta_planet, Mp, Rp)
-        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon, **args)
+        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon)
         k2q_planet = k2q_planet_core + k2q_planet_envelope
 
     dopdt = -3. / 2. * k2q_planet * Rp**3 / (GR * GCONST) *\
@@ -148,7 +175,16 @@ def dopdt(q, t, parameters):
 
 
 def dnpdt(q, t, parameters):
+    """Define the differential equation for the mean motion of the planet.
 
+    Args:
+        q (list): vector defining np
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: mean motion of the planet
+    """
     npp = q[0]
 
     # Evolving conditions
@@ -179,7 +215,7 @@ def dnpdt(q, t, parameters):
         k2q_planet_core = 0.0
         if args['planet_core_dissipation']:
             k2q_planet_core = k2Q_planet_core(rigidity, alpha_planet, beta_planet, Mp, Rp)
-        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon, **args)
+        k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon)
         k2q_planet = k2q_planet_core + k2q_planet_envelope
 
     dnpdt = (-9. / 2 * k2q_planet * Rp**5 / (GCONST**(5. / 3.) * Mp * Ms**(2. / 3.))
@@ -192,7 +228,16 @@ def dnpdt(q, t, parameters):
 # INTEGRATION OF THE TIDAL HEAT
 #############################################################
 def dEmdt(q, t, parameters):
+    """Define the differential equation for the tidal energy of the moon.
 
+    Args:
+        q (list): vector defining Em
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: Tidal energy of the moon
+    """
     E = q[0]
 
     # General parameters
@@ -227,7 +272,16 @@ def dEmdt(q, t, parameters):
 # INTEGRATION OF THE TEMPERATURE
 #############################################################
 def dTmdt(q, t, parameters):
+    """Define the differential equation for the temperatue of the moon.
 
+    Args:
+        q (list): vector defining Tm
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
+
+    Returns:
+        list: Temperature of the moon
+    """
     Tm = q[0]
 
     # General parameters
@@ -265,7 +319,7 @@ def dTmdt(q, t, parameters):
     elif Ts <= Tm < Tb:
         eta = eta_between_Ts_Tb(Tm, E_act=E_act, melt_fr=melt_fr, B=B)
 
-    elif Tb <= Tm < T1:
+    elif Tb <= Tm < Tl:
         eta = eta_between_Tb_Tl(Tm, melt_fr=melt_fr)
 
     else:
@@ -292,9 +346,16 @@ def dTmdt(q, t, parameters):
 # INTEGRATION OF THE WHOLE SYSTEM
 #############################################################
 def solution_planet_moon(q, t, parameters):
+    """Define the coupled differential equation for the system of EDOs.
 
-    args = parameters['args']
+    Args:
+        q (list): vector defining np
+        t (float): time
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
 
+    Returns:
+        list: mean motion of the planet
+    """
     nm = q[0]
     op = q[1]
     npp = q[2]

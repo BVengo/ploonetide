@@ -1,26 +1,24 @@
 import numpy as np
 
+from collections import namedtuple
+
 from ploonetide.utils.constants import *
 
 
 #############################################################
 # SPECIFIC ROUTINES
 #############################################################
-def k2Q_star_envelope(alpha, beta, epsilon, **args):
-    """
-      Source: Mathis, 2015
-      alpha = Rc/Rs
-      beta = Mc/Ms
-      epsilon = Omega/Omega_crit
-      args = contains behavior
+def k2Q_star_envelope(alpha, beta, epsilon):
+    """Calculate tidal heat function for a stellar envelope (Source: Mathis, 2015).
 
       Args:
-          alpha (float): star's core size fraction
-          beta (float): star's core mass fraction
+          alpha (float): star's core size fraction [Rc/Rs]
+          beta (float): star's core mass fraction [Mc/Ms]
+          epsilon (float): star's rotational rate [Omega/Omega_crit]
+          args (list, optional): contains behaviour
 
       Returns:
           float: tidal heat function
-
     """
     gamma = alpha**3. * (1 - beta) / (beta * (1 - alpha**3.))
 
@@ -35,17 +33,13 @@ def k2Q_star_envelope(alpha, beta, epsilon, **args):
     return k2q1
 
 
-def k2Q_planet_envelope(alpha, beta, epsilon, **args):
-    """
-      Source: Mathis, 2015
-      alpha = Rc/Rp
-      beta = Mc/Mp
-      epsilon = Omega/Omega_crit
-      args = contains behavior
+def k2Q_planet_envelope(alpha: float, beta: float, epsilon: float):
+    """Calculate tidal heat function for the planet's envelope (Source: Mathis, 2015).
 
       Args:
-          alpha (float): planet's core size fraction
-          beta (float): planet's core mass fraction
+          alpha (float): planet's core size fraction [Rc/Rp]
+          beta (float): planet's core mass fraction [Mc/Mp]
+          epsilon: planetary rotational rate (Omega/Omega_crit)
 
       Returns:
           float: tidal heat function
@@ -64,18 +58,14 @@ def k2Q_planet_envelope(alpha, beta, epsilon, **args):
 
 
 def k2Q_planet_core(G, alpha, beta, Mp, Rp):
-    """
-    Source: Mathis, 2015
-    alpha = Rc/Rp
-    beta = Mc/Mp
-    args = contains behavior
+    """Calculate tidal heat function for the planete's core (Source: Mathis, 2015).
 
     Args:
         G (float): planet's core rigidity
-        alpha (float): planet's core size fraction
-        beta (float): planet's core mass fraction
-        Mp (float): planet's mass
-        Rp (float): planet's radius
+        alpha (float): planet's core size fraction [Rc/Rp]
+        beta (float): planet's core mass fraction [Mc/Mp]
+        Mp (float): planet's mass [SI units]
+        Rp (float): planet's radius [SI units]
 
     Returns:
         float: tidal heat function
@@ -117,6 +107,18 @@ def Mp2Rp(Mp, t):
 
 
 def mloss_atmo(t, Ls, a, Mp, Rp):
+    """Calculate loss of mass in the atmoshpere of the planet.
+
+    Args:
+        t (float): time
+        Ls (float): stellar luminosity [W]
+        a (float): planetary semi-major axis [m]
+        Mp (float): mass of the planet [kg]
+        Rp (float): radius of the planet [m]
+
+    Returns:
+        float: loss rate of atmospheric mass
+    """
     #  Zuluaga et. al (2012)
     ti = 0.06 * GYEAR * (Ls / LSUN)**-0.65
 
@@ -137,12 +139,14 @@ def mloss_atmo(t, Ls, a, Mp, Rp):
 
 
 def mloss_dragging(a, Rp, Rs, Ms, oms, sun_mass_loss_rate, sun_omega):
+    """Calculate mass loss in the planet fue to atmospheric dragging."""
     alpha_eff = 0.3  # Zendejas et. al (2010) Venus
 
     return (Rp / a)**2.0 * mloss_star(Rs, Ms, oms, sun_mass_loss_rate, sun_omega) * alpha_eff / 2.0
 
 
 def mloss_star(Rs, Ms, oms, sun_mass_loss_rate, sun_omega):
+    """Calculate the loss of mass in the star due to wind."""
     # smlr_sun = 1.4E-14 * MSUN / YEAR  # Zendejas et. al (2010) - smlr sun
     # oms_sun = 2.67E-6
     m_loss = (sun_mass_loss_rate * (Rs / RSUN)**2.0
@@ -152,6 +156,7 @@ def mloss_star(Rs, Ms, oms, sun_mass_loss_rate, sun_omega):
 
 
 def omegadt_braking(kappa, OS, OS_saturation, osini, dobbs=False):
+    """Calculate the rate of magnetic braking in th star."""
     if dobbs:
         gam = 1.0
         tao = GYEAR
@@ -172,7 +177,7 @@ def omegadt_braking(kappa, OS, OS_saturation, osini, dobbs=False):
 
 
 def kappa_braking(OS, stellar_age, skumanich=True, alpha=0.495):
-
+    """Calulate the kappa coefficient for mangnetic braking."""
     alpha_s = 0.5  # Skumanich (1972)
     kappa = OS**-2.0 / (2.0 * stellar_age)  # Weber-Davis
 
@@ -184,8 +189,8 @@ def kappa_braking(OS, stellar_age, skumanich=True, alpha=0.495):
 
 
 def aRoche(Mp, densPart=3000, rfac=2.0, **args):
-    # Since Roche radius does not depend on R this is a hypotetical one
-    Rp = PLANETS.Saturn.R
+    """Calculate the Roche radius in term of the densities."""
+    Rp = PLANETS.Saturn.R  # Since Roche radius does not depend on R this is a hypotetical one
     # Planet average density
     densP = Mp / ((4. / 3) * np.pi * Rp**3)
     # Roche radius
@@ -194,8 +199,21 @@ def aRoche(Mp, densPart=3000, rfac=2.0, **args):
 
 
 def aRoche_solid(Mp, Mm, Rm):
+    """Calculate the Roche radius using the masses.
 
+    Args:
+        Mp (float): Planet's mass [kg]
+        Mm (float): Moon mass [kg]
+        Rm (float): Moon radius [kg]
+
+    Returns:
+        float: Roche radius of the body with Mm.
+    """
     return Rm * (2. * Mp / Mm)**(1. / 3.)
+
+
+def hill_radius(a, Mp, Ms):
+    return a * (Mp / (3.0 * Ms))**(1.0 / 3.0)
 
 
 def alpha2beta(Mp, alpha, **args):
@@ -252,6 +270,14 @@ def surf_temp(dEdt, Rm):
 
 
 def stellar_lifespan(Ms):
+    """Calculate lifespan of a star.
+
+    Args:
+        Ms (float): Stellar mass [kg]
+
+    Returns:
+        float: lifespan of the star [s]
+    """
     return 10 * (MSUN / Ms)**2.5 * GYEAR
 
 
@@ -293,6 +319,27 @@ def power(ee, aa, KQ, Ms, Rp):
     return coeff * keys
 # ###################DOBS-DIXON 2004#######################
 
+
+def find_moon_fate(t, am, amr, porb, Mp, Ms):
+    try:
+        pos = np.where(am <= amr)[0][0]
+        rt_time = t[pos] / GYEAR
+        print(f'Moon crosses Roche radius in {rt_time:.2f} Gyr')
+    except IndexError:
+        try:
+            ap = semiMajorAxis(porb, Ms, Mp)
+            r_hill = hill_radius(ap, Mp, Ms)
+            pos = np.where(am >= 0.48 * r_hill)[0][0]
+            rt_time = t[pos] / GYEAR
+            print(f'Moon escapes in {rt_time:.2f} Gyr')
+        except IndexError:
+            pos = -1
+            rt_time = np.max(t)
+            print('Moon migrates too slow and never escapes or crosses Roche radius.')
+
+    Outputs = namedtuple('Outputs', 't index')
+
+    return Outputs(rt_time, pos)
 
 def im_k2(T, omeg, densm, Mm, Rm, E_act, melt_fr, B, Ts, Tb, Tl):
 
