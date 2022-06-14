@@ -19,7 +19,7 @@ Tidal Evolution of Star-Planet-Moon systems (and ploonets!)
 **Ploonetide** is an open-source Python package which offers a simple and user-friendly way
 to calculate tidal evolution of compact planetary systems.
 
-.. Image:: ./docs/source/_static/images/logo.png
+.. Image:: ./_static/images/logo.png
 
 Documentation
 -------------
