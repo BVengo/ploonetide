@@ -58,7 +58,7 @@ author = 'Ploonetide developers'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -78,9 +78,7 @@ nbsphinx_execute = "auto"
 nbsphinx_timeout = 300
 
 # -- Options for HTML output ----------------------------------------------
-html_theme = 'pydata_sphinx_theme'
-
-
+# html_theme = 'pydata_sphinx_theme'
 html_theme_options = {
     "external_links": [],
     "github_url": "https://github.com/JAAlvarado-Montes/ploonetide",
