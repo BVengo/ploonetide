@@ -62,8 +62,7 @@ The best way to contact us is to `open an issue <https://github.com/JAAlvarado-M
 .. toctree::
     .. autosummary::
        :toctree: generated
-    :maxdepth: 1
-    :titlesonly:
+    :maxdepth: 3
 
     reference_guide
 
