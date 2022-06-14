@@ -20,9 +20,9 @@ Ploonetide
                  :target: https://github.com/JAAlvarado-Montes/ploonetide/actions?query=workflow%3Atransyto-build-test
 .. |astropy-badge| image:: https://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
                    :target: http://www.astropy.org
-.. |docs-badge| .. image:: https://readthedocs.org/projects/ploonetide/badge/?version=latest
-                   :target: https://ploonetide.readthedocs.io/en/latest/?badge=latest
-                   :alt: Documentation Status
+.. |docs-badge| image:: https://readthedocs.org/projects/ploonetide/badge/?version=latest
+                :target: https://ploonetide.readthedocs.io/en/latest/?badge=latest
+                :alt: Documentation Status
 
 
 **Ploonetide** is an open-source Python package which offers a simple and user-friendly way
