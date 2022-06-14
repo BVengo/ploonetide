@@ -8,8 +8,6 @@ Ploonetide
 
 **Ploonetide is a friendly-user package for calculating tidal evolution of compact systems with Python.**
 
-**Documentation: https://**
-
 |test-badge| |pypi-badge| |pypi-downloads| |astropy-badge| |docs-badge|
 
 .. |pypi-badge| image:: https://badge.fury.io/py/ploonetide.svg
