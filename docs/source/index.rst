@@ -67,6 +67,8 @@ The best way to contact us is to `open an issue <https://github.com/JAAlvarado-M
     :maxdepth: 1
     :titlesonly:
 
+    reference_guide
+
     What's new? <whats-new-v2.ipynb>
     quickstart
     tutorials/index
