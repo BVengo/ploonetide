@@ -9,3 +9,5 @@ extensions = [
 ]
 
 autoclass_content = 'both'
+
+master_doc = 'index'
