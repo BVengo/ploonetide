@@ -62,6 +62,8 @@ Ploonetide is an open source community project created by `the authors <AUTHORS.
 The best way to contact us is to `open an issue <https://github.com/JAAlvarado-Montes/ploonetide/issues/new>`_ or to e-mail  jaime-andres.alvarado-montes@hdr.mq.edu.au.
 
 .. toctree::
+    .. autosummary::
+       :toctree: generated
     :maxdepth: 1
     :titlesonly:
 
