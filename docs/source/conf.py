@@ -28,7 +28,7 @@ master_doc = 'index'
 
 # Load the __version__ variable without importing the package already
 main_ns = {}
-ver_path = convert_path('src/ploonetide/version.py')
+ver_path = convert_path('../../src/ploonetide/version.py')
 with open(ver_path) as ver_file:
     exec(ver_file.read(), main_ns)
 
