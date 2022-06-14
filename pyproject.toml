@@ -1,14 +1,12 @@
-[build-system]
-requires      = ["setuptools>=61.0.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "ploonetide"
 version = "1.0.0"
 description = "Calculate tidal interactions in planetary systems"
+authors = ["Jaime A. Alvarado-Montes <rasjaime@gmail.com>"]
 readme = "README.rst"
-authors = [{ name = "Jaime A. Alvarado-Montes", email = "rasjaime@gmail.com" }]
-license = { file = "LICENSE" }
+repository = "https://github.com/JAAlvarado-Montes/ploonetide"
+keywords = ["Tidal", "Simulation", "TESS", "Astronomy"]
+license = "LICENSE"
 classifiers = [
     "Development Status :: 1 - Planning",
     "License :: OSI Approved :: MIT License",
@@ -17,15 +15,59 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Astronomy",
 ]
-keywords = ["feed", "reader", "tutorial"]
+include = ["README.rst", "AUTHORS.rst", "CHANGES.rst", "CONTRIBUTING.rst", "CITATION", "LICENSE"]
+
+[tool.poetry.urls]
+"Bug Tracker" =  "https://github.com/JAAlvarado-Montes/ploonetide/issues"
+
+[tool.poetry.dependencies]
+numpy = ">=1.18"
+astropy = ">=5.0"
+scipy= ">=0.19.0"
+matplotlib = ">=1.5.3"
+astroquery = ">=0.3.9"
+astroplan = ">=0.7"
+pyfiglet = ">=0.7.6"
+argparse = ">=1.0"
+natsort = ">=1.0"
+pandas = ">=1.1.4"
+uncertainties = ">=1.0"
+seaborn = ">=0.11.2"
+mechanicalsoup = ">=1.0"
+beautifulsoup4 = ">=1.0"
+h5py = ">=1.0"
+tqdm = ">=4.25.0"
+
+[tool.poetry.dev-dependencies]
+bumpver = ">=1.0"
+black = ">=21.12b0"
+flake8 = ">=3.8.4"
+mypy = ">=0.930"
+isort = { version = ">=5.6.4", python = ">=3.6,<4.0" }
+pytest = ">=6.1.2"
+pytest-cov = ">=2.10.1"
+pytest-remotedata = ">=0.3.2"
+pytest-doctestplus = ">=0.8.0"
+pytest-xdist = ">=2.1.0"
+numpydoc = ">=1.1.0"
+sphinx-automodapi = ">=0.13"
+sphinxcontrib-rawfiles = ">=0.1.1"
+pydata-sphinx-theme = ">=0.7.1"
+pylint = ">=2.6.0"
+ghp-import = ">=1.0.1"
+
+
+[build-system]
+requires = ["setuptools", "poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+    "src",
+]
+
 requires-python = ">=3.6"
-dynamic = ["dependencies"]
-
-[project.optional-dependencies]
-dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
-
-[project.urls]
-Homepage = "https://github.com/JAAlvarado-Montes/ploonetide"
 
 [tool.bumpver]
 current_version = "1.0.0"
