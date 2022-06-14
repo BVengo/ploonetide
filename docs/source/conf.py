@@ -1,8 +1,9 @@
 import os
 import sys
+
+from distutils.util import convert_path
 sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
 
-import ploonetide
 
 extensions = [
     'sphinx.ext.duration',
@@ -25,10 +26,14 @@ source_suffix = '.rst'
 
 master_doc = 'index'
 
-# The short X.Y version.
-version = ".".join(ploonetide.__version__.split('.')[:2])
+# Load the __version__ variable without importing the package already
+main_ns = {}
+ver_path = convert_path('src/ploonetide/version.py')
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), main_ns)
+
 # The full version, including alpha/beta/rc tags.
-release = ploonetide.__version__
+release = main_ns['__version__']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -43,7 +48,7 @@ nbsphinx_execute = "auto"
 nbsphinx_timeout = 300
 
 # General information about the project.
-project = f'Ploonetide v{version}'
+project = f'Ploonetide v{release}'
 copyright = 'Jaime A. Alvarado-Montes'
 author = 'Ploonetide developers'
 
