@@ -7,10 +7,10 @@ Tidal Evolution of Star-Planet-Moon systems (and ploonets!)
 
 .. |pypi-badge| image:: https://badge.fury.io/py/ploonetide.svg
                 :target: https://badge.fury.io/py/ploonetide
-.. |pypi-downloads| image:: https://pepy.tech/badge/lightkurve/month
-                :target: https://pepy.tech/project/lightkurve/month
+.. |pypi-downloads| image:: https://pepy.tech/badge/ploonetide/month
+                :target: https://pepy.tech/project/ploonetide
 .. |test-badge| image:: https://github.com/JAAlvarado-Montes/ploonetide/workflows/ploonetide-build-test/badge.svg
-                 :target: https://github.com/JAAlvarado-Montes/ploonetide/actions?query=workflow%3Atransyto-build-test
+                 :target: https://github.com/JAAlvarado-Montes/ploonetide/actions?query=workflow%3Aploonetide-build-test
 .. |astropy-badge| image:: https://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
                    :target: http://www.astropy.org
 .. |docs-badge| image:: https://readthedocs.org/projects/ploonetide/badge/?version=latest
