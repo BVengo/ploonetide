@@ -25,13 +25,13 @@ to calculate tidal evolution of compact planetary systems.
 Documentation
 -------------
 
-Read the documentation at `https:// <https://>`_.
+Read the documentation at `https:// <https://ploonetide.readthedocs.io/en/latest/>`_.
 
 
 Quickstart
 ----------
 
-Please visit our quickstart guide at `https:// <https://>`_.
+Please visit our quickstart guide at `https:// <https://ploonetide.readthedocs.io/en/latest/>`_.
 
 
 Contributing
