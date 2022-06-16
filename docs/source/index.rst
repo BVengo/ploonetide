@@ -37,6 +37,12 @@ Please read the citation instructions at `CITATION <https://github.com/JAAlvarad
 Reference guide
 ===============
 
+.. automodule:: ploonetide
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+
 .. toctree::
    :maxdepth: 3
 
