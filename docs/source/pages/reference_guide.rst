@@ -1,9 +1,9 @@
-.. _api.glossary:
+.. _api.tidalsimulation:
 
-Glossary
-========
-
-.. module:: ploonetide
+===============
+TidalSimulation
+===============
+.. currentmodule:: ploonetide
 
 ploonetide.TidalSimulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
