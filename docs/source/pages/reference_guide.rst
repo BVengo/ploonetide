@@ -3,7 +3,7 @@
 TidalSimulation
 ===============
 
-.. currentmodule:: lightkurve
+.. currentmodule:: ploonetide
 
 ploonetide.TidalSimulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
