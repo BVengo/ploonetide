@@ -26,7 +26,7 @@ On Windows:
 
    .\env\Scripts\activate
 
-Install spike2py and its dependencies
+Install ploonetide and its dependencies
 -------------------------------------
 
 With your virtual environment activated, run the following command:
