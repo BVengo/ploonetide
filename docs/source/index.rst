@@ -40,7 +40,6 @@ Quickstart
 Please visit our quickstart guide at `https:// <https://>`_.
 
 ```
-
 >>> import numpy as np
 >>> import matplotlib.pyplot as plt
 
