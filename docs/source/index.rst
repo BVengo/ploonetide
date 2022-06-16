@@ -1,12 +1,8 @@
 .. title:: Ploonetide docs
 
-.. rst-class:: frontpage
-
 **********
 Ploonetide
 **********
-
-**Ploonetide is a friendly-user package for calculating tidal evolution of compact systems with Python.**
 
 |test-badge| |pypi-badge| |pypi-downloads| |astropy-badge| |docs-badge|
 
@@ -30,7 +26,7 @@ to calculate tidal evolution of compact planetary systems.
 
 Installation
 ============
-The first thing to do is install spike2py and make sure it's working properly.
+The first thing to do is install ploonetide and make sure it's working properly.
 
 .. toctree::
    :maxdepth: 1
