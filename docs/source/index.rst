@@ -12,7 +12,7 @@ The first thing to do is install ploonetide and make sure it's working properly.
    pages/installation
 
 
-Quickstart
+Quick start
 ==========
 
 .. toctree::
@@ -38,7 +38,7 @@ Reference guide
 ===============
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 3
 
    pages/reference_guide
 
