@@ -1,6 +1,13 @@
-Reference guide
+.. _api.tidalsimulation:
+
+TidalSimulation
 ===============
+
+.. currentmodule:: lightkurve
 
 ploonetide.TidalSimulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: TidalSimulation
+.. autosummary::
+   :toctree: api/
+
+   TidalSimulation
