@@ -1,7 +1,9 @@
 .. _quickstart:
 
-Quick tutorial
---------------
+Quick start
+-----------
+
+The code snippet below is how **ploonetide** should be used, for other examples please see the documentation.
 
 .. code-block:: python
 
