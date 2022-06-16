@@ -42,8 +42,8 @@ With your virtual environment activated, start Python and type the following:
 
 .. code-block:: python
 
-    >>> import ploonetide
-    >>> simulation = ploonetide.TidalSimulation()
+    import ploonetide
+    simulation = ploonetide.TidalSimulation()
 
 You should see a print statement.
 
