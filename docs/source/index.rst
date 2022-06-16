@@ -28,10 +28,14 @@ to calculate tidal evolution of compact planetary systems.
 
 .. Image:: ./_static/images/logo.png
 
-Documentation
--------------
+Installation
+============
+The first thing to do is install spike2py and make sure it's working properly.
 
-Read the documentation at `https:// <https://>`_.
+.. toctree::
+   :maxdepth: 1
+
+   pages/installation
 
 
 Quickstart
@@ -94,7 +98,7 @@ The best way to contact us is to `open an issue <https://github.com/JAAlvarado-M
        :toctree: generated
     :maxdepth: 3
 
-    reference_guide
+    pages/reference_guide
 
     What's new? <whats-new-v2.ipynb>
     quickstart
