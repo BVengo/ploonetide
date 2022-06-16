@@ -39,8 +39,6 @@ Quickstart
 
 Please visit our quickstart guide at `https:// <https://>`_.
 
-´´´
-
 >>> import numpy as np
 >>> import matplotlib.pyplot as plt
 
@@ -70,7 +68,6 @@ Please visit our quickstart guide at `https:// <https://>`_.
 >>> simulation.set_integration_method('rk4')
 >>> simulation.set_diff_eq()
 >>> simulation.run(integration_time, timestep)
-´´´
 
 
 Contributing
