@@ -25,20 +25,20 @@ to calculate tidal evolution of compact planetary systems.
 Documentation
 -------------
 
-Read the documentation at `https://ploonetide.readthedocs.io/en/latest/ <https://ploonetide.readthedocs.io/en/latest/>`_.
+Read the documentation at `Read the Docs <https://ploonetide.readthedocs.io/en/latest/>`_.
 
 
 Quickstart
 ----------
 
-Please visit our quickstart guide at `https://ploonetide.readthedocs.io/en/latest/ <https://ploonetide.readthedocs.io/en/latest/>`_.
+Please visit our quickstart guide at `Short Tutorial <https://ploonetide.readthedocs.io/en/latest/>`_.
 
 
 Contributing
 ------------
 
 We welcome community contributions!
-Please read the  guidelines at `https:// <https://>`_.
+Please read the  guidelines at `CONTRIBUTING <https://github.com/JAAlvarado-Montes/ploonetide/blob/develop/CONTRIBUTING.rst>`_.
 
 
 Citing
