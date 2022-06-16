@@ -41,7 +41,7 @@ Please visit our quickstart guide at `https:// <https://>`_.
 
 >>> import numpy as np
 >>> import matplotlib.pyplot as plt
->>> #
+>>> 
 >>> from ploonetide import TidalSimulation
 >>> from ploonetide.utils import colorline
 >>> from ploonetide.utils.functions import mean2axis, find_moon_fate
