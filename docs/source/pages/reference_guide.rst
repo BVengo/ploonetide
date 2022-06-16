@@ -1,4 +1,4 @@
-.. _Reference Guide:
+.. _Reference guide:
 
 Reference guide
 ==============

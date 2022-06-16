@@ -33,7 +33,7 @@ If you find Ploonetide useful in your research, please cite it and give us a Git
 Please read the citation instructions at `CITATION <https://github.com/JAAlvarado-Montes/ploonetide/blob/develop/CITATION>`_.
 
 
-Reference Guide
+Reference guide
 ===============
 
 .. toctree::
