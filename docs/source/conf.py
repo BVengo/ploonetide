@@ -2,7 +2,9 @@ import os
 import sys
 
 from distutils.util import convert_path
-sys.path.insert(0, os.path.abspath("../../src"))
+sys.path.append(os.path.abspath(
+    os.path.join(__file__, "../../src")
+))
 
 
 extensions = [
