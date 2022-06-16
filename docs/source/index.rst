@@ -25,14 +25,14 @@ Contributing
 ------------
 
 We welcome community contributions!
-Please read the  guidelines at `https:// <https://>`_.
+Please read the  guidelines at `CONTRIBUTING <https://github.com/JAAlvarado-Montes/ploonetide/blob/develop/CONTRIBUTING.rst>`_.
 
 
 Citing
 ------
 
 If you find Ploonetide useful in your research, please cite it and give us a GitHub star!
-Please read the citation instructions at `https:// <https://>`_.
+Please read the citation instructions at `CITATION <https://github.com/JAAlvarado-Montes/ploonetide/blob/develop/CITATION>`_.
 
 
 Contact
