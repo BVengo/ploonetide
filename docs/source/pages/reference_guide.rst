@@ -3,7 +3,7 @@
 TidalSimulation
 ===============
 
-.. currentmodule:: ploonetide.plonnetide
+.. module:: ploonetide.ploonetide
 
 ploonetide.TidalSimulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
