@@ -1,6 +1,5 @@
-.. title:: Ploonetide docs
-
 .. include:: pages/homepage.rst
+
 
 Installation
 ============
