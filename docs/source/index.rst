@@ -46,7 +46,7 @@ Please visit our quickstart guide at `https:// <https://>`_.
 >>> from ploonetide.utils import colorline
 >>> from ploonetide.utils.functions import mean2axis, find_moon_fate
 >>> from ploonetide.utils.constants import GYEAR, DAY, MSUN, AU
-
+>>>
 >>> # ************************************************************
 >>> # INTEGRATION
 >>> # ************************************************************
@@ -59,12 +59,12 @@ Please visit our quickstart guide at `https:// <https://>`_.
 >>>     planet_internal_evolution=False,
     planet_core_dissipation=False,
 >>> )
-
-
+>>>
+>>>
 >>> integration_time = 1 * simulation.stellar_lifespan
 >>> N_steps = 1e5
 >>> timestep = integration_time / N_steps
-
+>>>
 >>> simulation.set_integration_method('rk4')
 >>> simulation.set_diff_eq()
 >>> simulation.run(integration_time, timestep)
