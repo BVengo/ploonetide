@@ -2,7 +2,7 @@ import os
 import sys
 
 from distutils.util import convert_path
-sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__name__), '../../'))
 
 
 extensions = [
@@ -14,24 +14,6 @@ extensions = [
 ]
 
 autosummary_generate = True
-
-rst_file_suffix = '.rst'
-rst_link_suffix = ''
-rst_line_width = 78
-rst_indent = 4
-
-
-def rst_file_transform(docname):
-    if docname == 'index':
-        docname = 'home'
-    return docname.title() + rst_file_suffix
-
-
-def rst_link_transform(docname):
-    if docname == 'index':
-        return 'wiki'
-    return 'wiki/' + docname.title()
-
 
 autoclass_content = 'both'
 
