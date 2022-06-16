@@ -6,7 +6,7 @@ Installation
 Create a virtual environment
 ----------------------------
 
-ploonetide works with `Python 3.6 or above`_. It is recommended you create a dedicated `Python environment`_ before you install spike2py. In your project directory, run the following commands:
+ploonetide works with `Python 3.6 or above`_. It is recommended you create a dedicated `Python environment`_ before you install ploonetide. In your project directory, run the following commands:
 
 .. code-block:: bash
 

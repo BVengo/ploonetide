@@ -1,6 +1,7 @@
 .. _quickstart:
 
-Please visit our quickstart guide at:
+Quick tutorial
+--------------
 
 .. code-block:: python
 
