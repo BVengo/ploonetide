@@ -1,3 +1,5 @@
+.. _quickstart:
+
 .. code-block:: python
 
     import numpy as np
