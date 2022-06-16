@@ -3,4 +3,8 @@
 Reference guide
 ==============
 
-.. module:: ploonetide.TidalSimulation
+.. module:: ploonetide.ploonetide
+
+ploonetide.TidalSimulation
+~~~~~~~~~~~~~~~
+.. autoclass:: TidalSimulation
