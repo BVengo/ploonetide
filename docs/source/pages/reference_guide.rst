@@ -1,7 +1,7 @@
-.. _api.tidalsimulation:
+.. _api.glossary:
 
-TidalSimulation
-===============
+Glossary
+========
 
 .. module:: ploonetide
 
