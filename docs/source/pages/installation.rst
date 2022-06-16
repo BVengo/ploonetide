@@ -6,7 +6,7 @@ Installation
 Create a virtual environment
 ----------------------------
 
-spike2py works with `Python 3.8 or above`_. It is recommended you create a dedicated `Python environment`_ before you install spike2py. In your project directory, run the following commands:
+ploonetide works with `Python 3.6 or above`_. It is recommended you create a dedicated `Python environment`_ before you install spike2py. In your project directory, run the following commands:
 
 .. code-block:: bash
 
@@ -33,26 +33,20 @@ With your virtual environment activated, run the following command:
 
 .. code-block:: bash
 
-   pip install spike2py
+   pip install ploonetide
 
-Testing your spike2py installation
+Testing your ploonetide installation
 ----------------------------------
 
 With your virtual environment activated, start Python and type the following:
 
 .. code-block:: python
 
-    >>> import spike2py
-    >>> spike2py.demo.test_install()
+    >>> import ploonetide
+    >>> simulation = ploonetide.TidalSimulation()
 
-    Figure 1: sample.Flow.plot()
-    Figure 2: sample.Flow.lowpass(cutoff=4, order=8).plot()
-    Figure 3: sample.Volume.plot()
-    Figure 4: sample.Volume.remove_mean().linear_detrend().plot()
-    Figure 5: sample.plot()
-
-You should see a series of five figures.
+You should see a print statement.
 
 
-.. _Python 3.8 or above: https://www.python.org/downloads/
+.. _Python 3.6 or above: https://www.python.org/downloads/
 .. _Python environment: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment
