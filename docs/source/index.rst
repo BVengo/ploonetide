@@ -13,7 +13,7 @@ The first thing to do is install ploonetide and make sure it's working properly.
 
 
 Quick start
-==========
+===========
 
 .. toctree::
    :maxdepth: 1

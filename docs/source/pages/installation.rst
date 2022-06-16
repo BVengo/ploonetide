@@ -27,7 +27,7 @@ On Windows:
    .\env\Scripts\activate
 
 Install ploonetide and its dependencies
--------------------------------------
+---------------------------------------
 
 With your virtual environment activated, run the following command:
 
@@ -36,7 +36,7 @@ With your virtual environment activated, run the following command:
    pip install ploonetide
 
 Testing your ploonetide installation
-----------------------------------
+------------------------------------
 
 With your virtual environment activated, start Python and type the following:
 
