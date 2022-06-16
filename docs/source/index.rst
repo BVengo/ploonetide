@@ -39,7 +39,7 @@ The first thing to do is install spike2py and make sure it's working properly.
 
 
 Quickstart
-----------
+==========
 
 Please visit our quickstart guide at `https:// <https://>`_.
 
