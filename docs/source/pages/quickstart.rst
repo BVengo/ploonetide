@@ -1,5 +1,7 @@
 .. _quickstart:
 
+Please visit our quickstart guide at:
+
 .. code-block:: python
 
     import numpy as np
