@@ -1,13 +1,7 @@
-.. _api.tidalsimulation:
-
+Reference Guide
 ===============
-TidalSimulation
-===============
-.. currentmodule:: ploonetide
+.. module:: ploonetide.ploonetide
 
 ploonetide.TidalSimulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autosummary::
-   :toctree: api/
-
-   TidalSimulation
+.. autoclass:: TidalSimulation
