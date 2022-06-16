@@ -6,7 +6,6 @@ sys.path.append(os.path.join(os.path.dirname(__name__), '../../'))
 
 
 extensions = [
-    'sphinxcontrib.restbuilder',
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
