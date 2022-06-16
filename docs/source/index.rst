@@ -1,5 +1,6 @@
 .. include:: pages/homepage.rst
 
+.. Image:: ../_static/images/logo.png
 
 Installation
 ============

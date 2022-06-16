@@ -19,5 +19,3 @@ Ploonetide
 
 **Ploonetide** is an open-source Python package which offers a simple and user-friendly way
 to calculate tidal evolution of compact planetary systems.
-
-.. Image:: ../_static/images/logo.png
