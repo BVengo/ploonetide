@@ -8,12 +8,8 @@ The code snippet below is how **ploonetide** should be used, for other examples 
 .. code-block:: python
 
     import numpy as np
-    import matplotlib.pyplot as plt
     
     from ploonetide import TidalSimulation
-    from ploonetide.utils import colorline
-    from ploonetide.utils.functions import mean2axis, find_moon_fate
-    from ploonetide.utils.constants import GYEAR, DAY, MSUN, AU
     
     # ************************************************************
     # INTEGRATION
