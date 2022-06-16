@@ -1,7 +1,7 @@
 Reference guide
 ===============
 
-.. module:: ploonetide.ploonetide
+.. module:: ploonetide
 
 ploonetide.TidalSimulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
