@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from ploonetide import TidalSimulation
 from ploonetide.utils import colorline
 from ploonetide.utils.functions import mean2axis, find_moon_fate
-from ploonetide.utils.constants import GYEAR, DAY, MSUN, AU
+from ploonetide.utils.constants import GYEAR, KYEAR, DAY, MSUN, AU
 
 # ************************************************************
 # INTEGRATION
@@ -21,11 +21,9 @@ simulation = TidalSimulation(
 
 
 integration_time = 1 * simulation.stellar_lifespan
-N_steps = 1e5
-timestep = integration_time / N_steps
+timestep = 100 * KYEAR
 
 simulation.set_integration_method('rk4')
-simulation.set_diff_eq()
 simulation.run(integration_time, timestep)
 
 # ************************************************************

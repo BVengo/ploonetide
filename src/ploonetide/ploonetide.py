@@ -296,11 +296,9 @@ class TidalSimulation(Simulation):
         """
         return os.path.basename(PACKAGEDIR)
 
-    def set_diff_eq(self, **kwargs):
+    def run(self, integration_time, timestep, t0=0):
         differential_equation = solution_star_planet
         if self.system == 'planet-moon':
             differential_equation = solution_planet_moon
-        return super().set_diff_eq(differential_equation, **self.parameters)
-
-    def run(self, integration_time, timestep, t0=0):
+        super().set_diff_eq(differential_equation, **self.parameters)
         return super().run(integration_time, timestep, t0=0)

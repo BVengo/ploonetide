@@ -26,9 +26,7 @@ The code snippet below is how **ploonetide** should be used, for other examples 
     
     
     integration_time = 1 * simulation.stellar_lifespan
-    N_steps = 1e5
-    timestep = integration_time / N_steps
-
+    timestep = 100 * KYEAR
+    
     simulation.set_integration_method('rk4')
-    simulation.set_diff_eq()
     simulation.run(integration_time, timestep)
