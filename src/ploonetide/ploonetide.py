@@ -208,7 +208,8 @@ class TidalSimulation(Simulation):
             star_internal_evolution=self._star_internal_evolution, star_k2q=self.star_k2q,
             planet_internal_evolution=self._planet_internal_evolution, planet_k2q=self.planet_k2q,
             planet_size_evolution=self._planet_size_evolution, Rp=self.planet_radius,
-            planet_core_dissipation=self._planet_core_dissipation)
+            planet_core_dissipation=self._planet_core_dissipation,
+        )
 
         # Parameters dictionary
         self.parameters = dict(Ms=self.star_mass, Rs=self.star_radius, Ls=self.star_luminosity,
