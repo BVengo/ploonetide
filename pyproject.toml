@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ploonetide"
-version = "1.0.0"
+version = "1.0.1"
 description = "Calculate tidal interactions in planetary systems"
 authors = ["Jaime A. Alvarado-Montes <rasjaime@gmail.com>"]
 readme = "README.rst"
