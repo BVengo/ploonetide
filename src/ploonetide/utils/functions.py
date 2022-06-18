@@ -1,4 +1,5 @@
 import numpy as np
+import astropy.units as u
 
 from collections import namedtuple
 
@@ -237,7 +238,7 @@ def equil_temp(Ts, Rs, a, Ab):
 
 def luminosity(R, T):
     L = 4 * np.pi * R**2.0 * stefan_b_constant * T**4.0
-    return L
+    return u.Quantity(L, u.W)
 
 
 def semiMajorAxis(P, M, m):

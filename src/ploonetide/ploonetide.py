@@ -3,12 +3,13 @@ from __future__ import division
 import os
 # import logging
 
+import astropy.units as u
 import pandas as pd
 import numpy as np
 import pyfiglet
 
 from . import PACKAGEDIR
-from ploonetide.utils.constants import MSUN, RSUN, GYEAR, DAY, PLANETS
+from ploonetide.utils.constants import MSUN, PLANETS
 from ploonetide.utils.functions import *
 from ploonetide.odes.planet_moon import solution_planet_moon
 from ploonetide.odes.star_planet import solution_star_planet
@@ -64,7 +65,7 @@ class TidalSimulation(Simulation):
         planet_meanmo (float): Initial mean motion of the planet [s^-1]
         planet_omega (float): Initial rotational rate of the planet [s^-1]
         planet_roche_radius (float): Roche radius of the planet [m]
-        planet_semima (float): Semi-major axis of the planet [m]
+        planet_semimaaxis (float): Semi-major axis of the planet [m]
         star_alpha (float, optional): Stellar radius aspect ratio [No unit]
         star_angular_coeff (float, optional): Star's fraction of mass partaking in angular momentum exchange [No unit]
         star_beta (float, optional): Stellar mass aspect ratio [No unit]
@@ -137,143 +138,377 @@ class TidalSimulation(Simulation):
         # ************************************************************
         # STAR PARAMETERS
         # ************************************************************
-        self.star_mass = star_mass * MSUN
-        self.star_radius = star_radius * RSUN
-        self.star_eff_temperature = star_eff_temperature
-        self.star_rotperiod = star_rotperiod * DAY
-        self.star_saturation_rate = star_saturation_rate
-        self.star_saturation_period = 2. * np.pi / self.star_saturation_rate
+        self._star_mass = u.Quantity(star_mass, u.Msun)
+        self._star_radius = u.Quantity(star_radius, u.Rsun)
+        self._star_eff_temperature = u.Quantity(star_eff_temperature, u.K)
+        self._star_rotperiod = u.Quantity(star_rotperiod, u.d)
+        self._star_age = u.Quantity(star_age, u.Gyr)
+        self._star_saturation_rate = u.Quantity(star_saturation_rate, u.s**-1)
         self.star_angular_coeff = star_angular_coeff
         self.star_alpha = star_alpha
         self.star_beta = star_beta
-        self.star_omega = 2. * np.pi / self.star_rotperiod
-        self.star_epsilon = self.star_omega / omegaCritic(self.star_mass, self.star_radius)
-        self.star_k2q = k2Q_star_envelope(self.star_alpha, self.star_beta, self.star_epsilon)
-        self.star_age = star_age * GYEAR
-        self.star_luminosity = luminosity(self.star_radius, self.star_eff_temperature)
-
-        self.stellar_lifespan = stellar_lifespan(self.star_mass)
 
         # ************************************************************
         # PLANET PARAMETERS
         # ************************************************************
-        self.planet_rigidity = planet_rigidity
+        self._planet_orbperiod = u.Quantity(planet_orbperiod, u.d)
+        self._planet_rotperiod = u.Quantity(planet_rotperiod, u.d)
+        self._planet_mass = u.Quantity(planet_mass, u.M_jup)
+        self._planet_radius = u.Quantity(planet_radius, u.R_jup)
+        self._planet_rigidity = u.Quantity(planet_rigidity, u.Pa)
         self.planet_angular_coeff = planet_angular_coeff
-        self.planet_mass = planet_mass * PLANETS.Jupiter.M
-        if pd.isnull(planet_radius):
-            self.planet_radius, _, _ = Mstat2R(mean=self.planet_mass / PLANETS.Jupiter.M,
-                                               std=0.1, unit='Jupiter', sample_size=200,
-                                               classify='Yes')
-            self.planet_radius = self.planet_radius * PLANETS.Jupiter.R
-        else:
-            self.planet_radius = planet_radius * PLANETS.Jupiter.R
 
-        self.planet_orbperiod = planet_orbperiod * DAY
-        self.planet_rotperiod = planet_rotperiod * DAY
         self.planet_eccentricity = planet_eccentricity
-        self.planet_omega = 2. * np.pi / self.planet_rotperiod
         self.planet_alpha = planet_alpha
         self.planet_beta = planet_beta
-        self.planet_semima = semiMajorAxis(self.planet_orbperiod, self.star_mass, self.planet_mass)
-        self.planet_meanmo = meanMotion(self.planet_semima, self.star_mass, self.planet_mass)
-        self.planet_epsilon = self.planet_omega / omegaCritic(self.planet_mass, self.planet_radius)
-        self.planet_k2q = k2Q_planet_envelope(self.planet_alpha, self.planet_beta, self.planet_epsilon)
-        if self.__planet_core_dissipation:
-            self.planet_k2q = k2Q_planet_envelope(self.planet_alpha, self.planet_beta, self.planet_epsilon) +\
-                k2Q_planet_core(self.planet_rigidity, self.planet_alpha, self.planet_beta,
-                                self.planet_mass, self.planet_radius)
-
-        self.planet_roche_radius = 2.7 * (self.star_mass / self.planet_mass)**(1. / 3.) * self.planet_radius  # Roche radius of the planet (Guillochon et. al 2011)
 
         # ************************************************************
         # MOON PARAMETERS
         # ************************************************************
+        self._moon_mass = u.Quantity(moon_mass, u.Mearth)
+        self._moon_radius = u.Quantity(moon_radius, u.Rearth)
+        self._moon_semimaxis = u.Quantity(moon_semimaxis * self.moon_roche_radius.value, u.m)
         self.moon_eccentricty = moon_eccentricty
         self.moon_albedo = moon_albedo
-        self.moon_mass = moon_mass * MEARTH
-        self.moon_radius = moon_radius * REARTH
-        self.moon_roche_radius = aRoche_solid(self.planet_mass, self.moon_mass, self.moon_radius)
-        self.moon_semimaxis = moon_semimaxis * self.moon_roche_radius
-        self.moon_meanmo = meanMotion(self.moon_semimaxis, self.planet_mass, self.moon_mass)
-        self.moon_rotperiod = 2. * np.pi / self.moon_meanmo
-        self.moon_density = density(self.moon_mass, self.moon_radius)
-        self.moon_temperature = equil_temp(self.star_eff_temperature, self.star_radius,
-                                           self.planet_semima, self.moon_albedo)
-        self.moon_tidal_ene = e_tidal(self.moon_temperature, self.moon_meanmo,
-                                      densm=self.moon_density, Mm=self.moon_mass,
-                                      Rm=self.moon_radius, eccm=self.moon_eccentricty)
 
         # Arguments for including/excluding different effects
         self.args = dict(
             star_internal_evolution=self._star_internal_evolution, star_k2q=self.star_k2q,
             planet_internal_evolution=self._planet_internal_evolution, planet_k2q=self.planet_k2q,
-            planet_size_evolution=self._planet_size_evolution, Rp=self.planet_radius,
+            planet_size_evolution=self._planet_size_evolution, Rp=self.planet_radius.to(u.m).value,
             planet_core_dissipation=self._planet_core_dissipation,
         )
 
         # Parameters dictionary
-        self.parameters = dict(Ms=self.star_mass, Rs=self.star_radius, Ls=self.star_luminosity,
-                               coeff_star=self.star_angular_coeff, star_alpha=self.star_alpha,
-                               star_beta=self.star_beta, os_saturation=self.star_saturation_rate,
-                               star_age=self.star_age, coeff_planet=self.planet_angular_coeff,
-                               Mp=self.planet_mass, Rp=self.planet_radius, planet_alpha=self.planet_alpha,
-                               planet_beta=self.planet_beta, rigidity=self.planet_rigidity,
-                               E_act=activation_energy, B=melt_fraction_coeff,
-                               Ts=solidus_temperature, Tb=breakdown_temperature,
-                               Tl=liquidus_temperature, Cp=heat_capacity,
-                               ktherm=thermal_conductivity, Rac=Rayleigh_critical,
-                               a2=flow_geometry, alpha_exp=thermal_expansivity,
-                               densm=self.moon_density, Mm=self.moon_mass, Rm=self.moon_radius,
-                               melt_fr=self.melt_fraction, sun_omega=self.sun_omega,
-                               sun_mass_loss_rate=self.sun_mass_loss_rate, args=self.args)
+        self.parameters = dict(
+            Ms=self.star_mass.to(u.kg).value, Rs=self.star_radius.to(u.m).value, Ls=self.star_luminosity,
+            coeff_star=self.star_angular_coeff, star_alpha=self.star_alpha,
+            star_beta=self.star_beta, os_saturation=self.star_saturation_rate,
+            star_age=self.star_age.to(u.s).value, coeff_planet=self.planet_angular_coeff,
+            Mp=self.planet_mass.to(u.kg).value, Rp=self.planet_radius.to(u.m).value, planet_alpha=self.planet_alpha,
+            planet_beta=self.planet_beta, rigidity=self.planet_rigidity.value,
+            E_act=activation_energy, B=melt_fraction_coeff,
+            Ts=solidus_temperature, Tb=breakdown_temperature,
+            Tl=liquidus_temperature, Cp=heat_capacity,
+            ktherm=thermal_conductivity, Rac=Rayleigh_critical,
+            a2=flow_geometry, alpha_exp=thermal_expansivity,
+            densm=self.moon_density.value, Mm=self.moon_mass.to(u.kg).value, Rm=self.moon_radius.to(u.m).value,
+            melt_fr=melt_fraction, sun_omega=self.sun_omega,
+            sun_mass_loss_rate=self.sun_mass_loss_rate, args=self.args
+        )
 
         # ************************************************************
         # INITIAL CONDITIONS FOR THE SYSTEM
         # ************************************************************
         if self.system == 'star-planet':
-            self.parameters["om_ini"] = self.planet_omega  # Initial planet's rotational rate
+            self.parameters["om_ini"] = self.planet_omega.value  # Initial planet's rotational rate
             self.parameters["e_ini"] = self.planet_eccentricity  # Initial eccentricity
-            self.parameters["os_ini"] = self.star_omega  # Initial star's rotational rate
-            self.parameters["npp_ini"] = self.planet_meanmo  # Initial planet mean motion
-            self.parameters["mp_ini"] = self.planet_mass  # Initial planetary mass
+            self.parameters["os_ini"] = self.star_omega.value  # Initial star's rotational rate
+            self.parameters["npp_ini"] = self.planet_meanmo.value  # Initial planet mean motion
+            self.parameters["mp_ini"] = self.planet_mass.to(u.kg).value  # Initial planetary mass
 
-            motion_p = Variable('planet_mean_motion', self.planet_meanmo)
-            omega_p = Variable('planet_omega', self.planet_omega)
+            motion_p = Variable('planet_mean_motion', self.planet_meanmo.value)
+            omega_p = Variable('planet_omega', self.planet_omega.value)
             eccen_p = Variable('planet_eccentricity', self.planet_eccentricity)
-            omega_s = Variable('star_omega', self.star_omega)
-            mass_p = Variable('planet_mass', self.planet_mass)
+            omega_s = Variable('star_omega', self.star_omega.value)
+            mass_p = Variable('planet_mass', self.planet_mass.to(u.kg).value)
             initial_variables = [motion_p, omega_p, eccen_p, omega_s, mass_p]
 
-            print(f'\nStellar mass: {self.star_mass / MSUN:.1f} Msun\n',
-                  f'Planet orbital period: {self.planet_orbperiod / DAY:.1f} days\n',
-                  f'Planetary mass: {self.planet_mass / PLANETS.Jupiter.M:.1f} Mjup\n',
-                  f'Planetary radius: {self.planet_radius / PLANETS.Jupiter.R:.1f} Rjup\n')
+            print(f'\nStellar mass: {self.star_mass:.1f} Msun\n',
+                  f'Planet orbital period: {self.planet_orbperiod:.1f} days\n',
+                  f'Planetary mass: {self.planet_mass:.1f} Mjup\n',
+                  f'Planetary radius: {self.planet_radius.value / PLANETS.Jupiter.R:.1f} Rjup\n')
 
         elif self.system == 'planet-moon':
-            self.parameters['nm_ini'] = self.moon_meanmo  # Moon's initial mean motion
-            self.parameters['np_ini'] = self.planet_meanmo  # PLanet's initial mean motion
-            self.parameters['op_ini'] = self.planet_omega   # Planet's initial rotation rate
-            self.parameters['Tm_ini'] = self.moon_temperature  # Moon's initial temperature
-            self.parameters['Em_ini'] = self.moon_tidal_ene  # Moon's initial tidal heat
+            self.parameters['nm_ini'] = self.moon_meanmo.value  # Moon's initial mean motion
+            self.parameters['np_ini'] = self.planet_meanmo.value  # PLanet's initial mean motion
+            self.parameters['op_ini'] = self.planet_omega.value   # Planet's initial rotation rate
+            self.parameters['Tm_ini'] = self.moon_temperature.value  # Moon's initial temperature
+            self.parameters['Em_ini'] = self.moon_tidal_ene.value  # Moon's initial tidal heat
             self.parameters['em_ini'] = self.moon_eccentricty  # Moon's initial eccentricity
 
-            motion_m = Variable('mean_motion_m', self.moon_meanmo)
-            omega_p = Variable('omega_planet', self.planet_omega)
-            motion_p = Variable('mean_motion_p', self.planet_meanmo)
-            temper_m = Variable('temperature', self.moon_temperature)
-            tidal_m = Variable('tidal_heat', self.moon_tidal_ene)
+            motion_m = Variable('mean_motion_m', self.moon_meanmo.value)
+            omega_p = Variable('omega_planet', self.planet_omega.value)
+            motion_p = Variable('mean_motion_p', self.planet_meanmo.value)
+            temper_m = Variable('temperature', self.moon_temperature.value)
+            tidal_m = Variable('tidal_heat', self.moon_tidal_ene.value)
             eccen_m = Variable('eccentricity', self.moon_eccentricty)
             initial_variables = [motion_m, omega_p, motion_p, temper_m, tidal_m, eccen_m]
             if self.parameters['em_ini'] == 0.0:
                 initial_variables = [motion_m, omega_p, motion_p, temper_m, tidal_m]
 
-            print(f'\nStellar mass: {self.star_mass / MSUN:.1f} Msun\n',
-                  f'Planet orbital period: {self.planet_orbperiod / DAY:.1f} days\n',
-                  f'Planetary mass: {self.planet_mass / PLANETS.Jupiter.M:.1f} Mjup\n',
-                  f'Planetary radius: {self.planet_radius / PLANETS.Jupiter.R:.1f} Rjup\n',
-                  f'Moon orbital period: {moon_semimaxis:.1f} a_roche ({self.moon_rotperiod / DAY:.1f} days)\n')
+            print(f'\nStellar mass: {self.star_mass:.1f}\n',
+                  f'Planet orbital period: {self.planet_orbperiod:.1f}\n',
+                  f'Planetary mass: {self.planet_mass:.1f}\n',
+                  f'Planetary radius: {self.planet_radius:.1f}\n',
+                  f'Moon orbital period: {moon_semimaxis:.1f} a_roche ({self.moon_orbperiod:.1f} days)\n')
 
         super().__init__(variables=initial_variables)
+
+    # **********************************************************************************************
+    # ********************************* STAR DYNAMICAL PROPERTIES **********************************
+    # **********************************************************************************************
+    @property
+    def star_mass(self):
+        return self._star_mass
+
+    @star_mass.setter
+    def star_mass(self, value):
+        self._star_mass = value
+        if not isinstance(self._star_mass, u.Quantity):
+            self._star_mass = u.Quantity(value, u.Msun)
+
+    @property
+    def star_radius(self):
+        return self._star_radius
+
+    @star_radius.setter
+    def star_radius(self, value):
+        self._star_radius = value
+        if not isinstance(self._star_radius, u.Quantity):
+            self._star_radius = u.Quantity(value, u.Rsun)
+
+    @property
+    def star_age(self):
+        return self._star_age
+
+    @star_age.setter
+    def star_age(self, value):
+        self._star_age = value
+        if not isinstance(self._star_age, u.Quantity):
+            self._star_age = u.Quantity(value, u.Gyr)
+
+    @property
+    def star_saturation_rate(self):
+        return self._star_saturation_rate
+
+    @star_saturation_rate.setter
+    def star_saturation_rate(self, value):
+        self._star_saturation_rate = value
+        if not isinstance(self._star_saturation_rate, u.Quantity):
+            self._star_saturation_rate = u.Quantity(value, u.s**-1)
+
+    @property
+    def star_rotperiod(self):
+        return self._star_rotperiod
+
+    @star_rotperiod.setter
+    def star_rotperiod(self, value):
+        self._star_rotperiod = value
+        if not isinstance(self._star_rotperiod, u.Quantity):
+            self._star_rotperiod = u.Quantity(value, u.d)
+
+    @property
+    def star_eff_temperature(self):
+        return self._star_eff_temperature
+
+    @star_eff_temperature.setter
+    def star_eff_temperature(self, value):
+        self._star_eff_temperature = value
+        if not isinstance(self._star_eff_temperature, u.Quantity):
+            self._star_eff_temperature = u.Quantity(value, u.K)
+
+    @property
+    def star_luminosity(self):
+        return luminosity(self.star_radius.to(u.m).value, self.star_eff_temperature.value)
+
+    @star_luminosity.setter
+    def star_luminosity(self, value):
+        self._star_luminosity = value
+        if not isinstance(self._star_luminosity, u.Quantity):
+            print("popito")
+            self._star_luminosity = u.Quantity(value, u.W)
+
+    @property
+    def star_rotperiod(self):
+        return self._star_rotperiod
+
+    @star_rotperiod.setter
+    def star_rotperiod(self, value):
+        self._star_rotperiod = value
+        if not isinstance(self._star_rotperiod, u.Quantity):
+            self._star_rotperiod = u.Quantity(value, u.d)
+
+    @property
+    def star_omega(self):
+        return u.Quantity(2. * np.pi / self.star_rotperiod.to(u.s).value, u.s**-1)
+
+    @property
+    def star_epsilon(self):
+        return self.star_omega.value / omegaCritic(self.star_mass.to(u.kg).value, self.star_radius.to(u.m).value)
+
+    @property
+    def star_k2q(self):
+        return k2Q_star_envelope(self.star_alpha, self.star_beta, self.star_epsilon)
+
+    @property
+    def star_lifespan(self):
+        return u.Quantity(stellar_lifespan(self.star_mass.to(u.kg).value), u.s)
+
+    @property
+    def star_saturation_period(self):
+        return u.Quantity(2. * np.pi / self.star_saturation_rate.value, u.d)
+
+    # **********************************************************************************************
+    # ******************************** PLANET DYNAMICAL PROPERTIES *********************************
+    # **********************************************************************************************
+    @property
+    def planet_orbperiod(self):
+        return self._planet_orbperiod
+
+    @planet_orbperiod.setter
+    def planet_orbperiod(self, value):
+        self._planet_orbperiod = value
+        if not isinstance(self._planet_orbperiod, u.Quantity):
+            self._planet_orbperiod = u.Quantity(value, u.d)
+
+    @property
+    def planet_rotperiod(self):
+        return self._planet_rotperiod
+
+    @planet_rotperiod.setter
+    def planet_rotperiod(self, value):
+        self._planet_rotperiod = value
+        if not isinstance(self._planet_rotperiod, u.Quantity):
+            self._planet_rotperiod = u.Quantity(value, u.d)
+
+    @property
+    def planet_mass(self):
+        return self._planet_mass
+
+    @planet_mass.setter
+    def planet_mass(self, value):
+        self._planet_mass = value
+        if not isinstance(self._planet_mass, u.Quantity):
+            self._planet_mass = u.Quantity(value, u.M_jup)
+
+    @property
+    def planet_radius(self):
+        if pd.isnull(self._planet_radius):
+            planet_radius, _, _ = Mstat2R(
+                mean=self.planet_mass.value, std=0.1, unit='Jupiter',
+                sample_size=200, classify='Yes'
+            )
+
+            return u.Quantity(planet_radius, u.R_jup)
+        else:
+            return self._planet_radius
+
+    @planet_radius.setter
+    def planet_radius(self, value):
+        self._planet_radius = value
+        if not isinstance(self._planet_radius, u.Quantity):
+            if not value:
+                self._planet_radius, _, _ = Mstat2R(
+                    mean=self.planet_mass.value, std=0.1, unit='Jupiter',
+                    sample_size=200, classify='Yes'
+                )
+            self._planet_radius = u.Quantity(self._planet_radius, u.R_jup)
+
+    @property
+    def planet_rigidity(self):
+        return self._planet_rigidity
+
+    @planet_rigidity.setter
+    def planet_rigidity(self, value):
+        self._planet_rigidity = value
+        if not isinstance(self._planet_rigidity, u.Quantity):
+            self._planet_rigidity = u.Quantity(value, u.Pa)
+
+    @property
+    def planet_omega(self):
+        return u.Quantity(2. * np.pi / self.planet_rotperiod.to(u.s).value, u.s**-1)
+
+    @property
+    def planet_semimaaxis(self):
+        return u.Quantity(semiMajorAxis(self.planet_orbperiod.to(u.s).value,
+                                        self.star_mass.to(u.kg).value,
+                                        self.planet_mass.to(u.kg).value), u.m).to(u.au)
+
+    @property
+    def planet_meanmo(self):
+        return u.Quantity(meanMotion(self.planet_semimaaxis.to(u.m).value,
+                                     self.star_mass.to(u.kg).value,
+                                     self.planet_mass.to(u.kg).value), u.s**-1)
+
+    @property
+    def planet_epsilon(self):
+        return self.planet_omega.value / omegaCritic(self.planet_mass.to(u.kg).value,
+                                                     self.planet_radius.to(u.m).value)
+
+    @property
+    def planet_k2q(self):
+        if self.__planet_core_dissipation:
+            return k2Q_planet_envelope(self.planet_alpha, self.planet_beta, self.planet_epsilon) +\
+                k2Q_planet_core(self.planet_rigidity.value, self.planet_alpha, self.planet_beta,
+                                self.planet_mass.to(u.kg).value, self.planet_radius.to(u.m).value)
+        else:
+            return k2Q_planet_envelope(self.planet_alpha, self.planet_beta, self.planet_epsilon)
+
+    @property
+    def planet_roche_radius(self):
+        return u.Quantity(2.7 * (self.star_mass.to(u.kg).value / self.planet_mass.to(u.kg).value)**(1. / 3.) * self.planet_radius.to(u.m).value, u.m).to(u.AU)  # Roche radius of the planet (Guillochon et. al 2011)
+
+    # **********************************************************************************************
+    # ******************************** MOON DYNAMICAL PROPERTIES *********************************
+    # **********************************************************************************************
+    @property
+    def moon_mass(self):
+        return self._moon_mass
+
+    @moon_mass.setter
+    def moon_mass(self, value):
+        self._moon_mass = value
+        if not isinstance(self._moon_mass, u.Quantity):
+            self._moon_mass = u.Quantity(value, u.Mearth)
+
+    @property
+    def moon_radius(self):
+        return self._moon_radius
+
+    @moon_radius.setter
+    def moon_radius(self, value):
+        self._moon_radius = value
+        if not isinstance(self._moon_radius, u.Quantity):
+            self._moon_radius = u.Quantity(value, u.Rearth)
+
+    @property
+    def moon_roche_radius(self):
+        return u.Quantity(aRoche_solid(self.planet_mass.to(u.kg).value, self.moon_mass.to(u.kg).value, self.moon_radius.to(u.m).value), u.m)
+
+    @property
+    def moon_semimaxis(self):
+        return self._moon_semimaxis
+
+    @moon_semimaxis.setter
+    def moon_semimaxis(self, value):
+        self._moon_semimaxis = value
+        if not isinstance(self._moon_semimaxis, u.Quantity):
+            self._moon_semimaxis = u.Quantity(value * self.moon_roche_radius.value, u.m)
+
+    @property
+    def moon_meanmo(self):
+        return u.Quantity(meanMotion(self.moon_semimaxis.value, self.planet_mass.to(u.kg).value,
+                                     self.moon_mass.to(u.kg).value), u.s**-1)
+
+    @property
+    def moon_orbperiod(self):
+        return u.Quantity(2. * np.pi / self.moon_meanmo.value, u.s).to(u.d)
+
+    @property
+    def moon_density(self):
+        return u.Quantity(density(self.moon_mass.to(u.kg).value, self.moon_radius.to(u.m).value), u.kg * u.m**-3.)
+
+    @property
+    def moon_temperature(self):
+        return u.Quantity(equil_temp(self.star_eff_temperature.value, self.star_radius.to(u.m).value,
+                                     self.planet_semimaaxis.to(u.m).value, self.moon_albedo), u.K)
+
+    @property
+    def moon_tidal_ene(self):
+        return u.Quantity(e_tidal(self.moon_temperature.value, self.moon_meanmo.value,
+                                  densm=self.moon_density.value, Mm=self.moon_mass.to(u.kg).value,
+                                  Rm=self.moon_radius.to(u.m).value, eccm=self.moon_eccentricty), u.J * u.s**-1)
 
     @classmethod
     def get_class_name(cls):
