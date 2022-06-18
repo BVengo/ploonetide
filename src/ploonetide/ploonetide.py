@@ -9,7 +9,7 @@ import numpy as np
 import pyfiglet
 
 from . import PACKAGEDIR
-from ploonetide.utils.constants import MSUN, PLANETS
+from ploonetide.utils.constants import PLANETS
 from ploonetide.utils.functions import *
 from ploonetide.odes.planet_moon import solution_planet_moon
 from ploonetide.odes.star_planet import solution_star_planet
@@ -124,16 +124,21 @@ class TidalSimulation(Simulation):
         self._star_internal_evolution = star_internal_evolution
 
         # ************************************************************
-        # SET CANONICAL UNITS
+        # GENERAL CONSTANTS IN THE SIMULATION
         # ************************************************************
-        # self.mass_unit = mass_unit
-        # self.length_unit = length_unit
-        # self.time_unit = time_unit
-        # self.uM, self.uL, self.uT = canonic_units(uL=self.length_unit, uM=self.mass_unit, uT=self.time_unit)
-
-        # General constants
-        self.sun_mass_loss_rate = sun_mass_loss_rate * MSUN / YEAR
-        self.sun_omega = sun_omega
+        self._sun_mass_loss_rate = u.Quantity(sun_mass_loss_rate, u.Msun * u.yr**-1)
+        self._sun_omega = u.Quantity(sun_omega, u.s**-1)
+        self._activation_energy = u.Quantity(activation_energy, u.J * u.mol**-1)
+        self._solidus_temperature = u.Quantity(solidus_temperature, u.K)
+        self._breakdown_temperature = u.Quantity(breakdown_temperature, u.K)
+        self._liquidus_temperature = u.Quantity(liquidus_temperature, u.K)
+        self._heat_capacity = u.Quantity(heat_capacity, u.J * u.kg**-1 * u.K**-1)
+        self._thermal_conductivity = u.Quantity(thermal_conductivity, u.W * u.m**-1 * u.K**-1)
+        self._thermal_expansivity = u.Quantity(thermal_expansivity, u.K**-1)
+        self.Rayleigh_critical = Rayleigh_critical
+        self.flow_geometry = flow_geometry
+        self.melt_fraction_coeff = melt_fraction_coeff
+        self.melt_fraction = melt_fraction
 
         # ************************************************************
         # STAR PARAMETERS
@@ -179,33 +184,15 @@ class TidalSimulation(Simulation):
             planet_core_dissipation=self._planet_core_dissipation,
         )
 
-        # Parameters dictionary
-        self.parameters = dict(
-            Ms=self.star_mass.to(u.kg).value, Rs=self.star_radius.to(u.m).value, Ls=self.star_luminosity,
-            coeff_star=self.star_angular_coeff, star_alpha=self.star_alpha,
-            star_beta=self.star_beta, os_saturation=self.star_saturation_rate,
-            star_age=self.star_age.to(u.s).value, coeff_planet=self.planet_angular_coeff,
-            Mp=self.planet_mass.to(u.kg).value, Rp=self.planet_radius.to(u.m).value, planet_alpha=self.planet_alpha,
-            planet_beta=self.planet_beta, rigidity=self.planet_rigidity.value,
-            E_act=activation_energy, B=melt_fraction_coeff,
-            Ts=solidus_temperature, Tb=breakdown_temperature,
-            Tl=liquidus_temperature, Cp=heat_capacity,
-            ktherm=thermal_conductivity, Rac=Rayleigh_critical,
-            a2=flow_geometry, alpha_exp=thermal_expansivity,
-            densm=self.moon_density.value, Mm=self.moon_mass.to(u.kg).value, Rm=self.moon_radius.to(u.m).value,
-            melt_fr=melt_fraction, sun_omega=self.sun_omega,
-            sun_mass_loss_rate=self.sun_mass_loss_rate, args=self.args
-        )
-
         # ************************************************************
         # INITIAL CONDITIONS FOR THE SYSTEM
         # ************************************************************
         if self.system == 'star-planet':
-            self.parameters["om_ini"] = self.planet_omega.value  # Initial planet's rotational rate
-            self.parameters["e_ini"] = self.planet_eccentricity  # Initial eccentricity
-            self.parameters["os_ini"] = self.star_omega.value  # Initial star's rotational rate
-            self.parameters["npp_ini"] = self.planet_meanmo.value  # Initial planet mean motion
-            self.parameters["mp_ini"] = self.planet_mass.to(u.kg).value  # Initial planetary mass
+            self.sim_parameters["om_ini"] = self.planet_omega.value  # Initial planet's rotational rate
+            self.sim_parameters["e_ini"] = self.planet_eccentricity  # Initial eccentricity
+            self.sim_parameters["os_ini"] = self.star_omega.value  # Initial star's rotational rate
+            self.sim_parameters["npp_ini"] = self.planet_meanmo.value  # Initial planet mean motion
+            self.sim_parameters["mp_ini"] = self.planet_mass.to(u.kg).value  # Initial planetary mass
 
             motion_p = Variable('planet_mean_motion', self.planet_meanmo.value)
             omega_p = Variable('planet_omega', self.planet_omega.value)
@@ -220,12 +207,12 @@ class TidalSimulation(Simulation):
                   f'Planetary radius: {self.planet_radius.value / PLANETS.Jupiter.R:.1f} Rjup\n')
 
         elif self.system == 'planet-moon':
-            self.parameters['nm_ini'] = self.moon_meanmo.value  # Moon's initial mean motion
-            self.parameters['np_ini'] = self.planet_meanmo.value  # PLanet's initial mean motion
-            self.parameters['op_ini'] = self.planet_omega.value   # Planet's initial rotation rate
-            self.parameters['Tm_ini'] = self.moon_temperature.value  # Moon's initial temperature
-            self.parameters['Em_ini'] = self.moon_tidal_ene.value  # Moon's initial tidal heat
-            self.parameters['em_ini'] = self.moon_eccentricty  # Moon's initial eccentricity
+            # self._sim_parameters['nm_ini'] = self.moon_meanmo.value  # Moon's initial mean motion
+            # self._sim_parameters['np_ini'] = self.planet_meanmo.value  # PLanet's initial mean motion
+            # self._sim_parameters['op_ini'] = self.planet_omega.value   # Planet's initial rotation rate
+            # self._sim_parameters['Tm_ini'] = self.moon_temperature.value  # Moon's initial temperature
+            # self._sim_parameters['Em_ini'] = self.moon_tidal_ene.value  # Moon's initial tidal heat
+            # self._sim_parameters['em_ini'] = self.moon_eccentricty  # Moon's initial eccentricity
 
             motion_m = Variable('mean_motion_m', self.moon_meanmo.value)
             omega_p = Variable('omega_planet', self.planet_omega.value)
@@ -234,7 +221,7 @@ class TidalSimulation(Simulation):
             tidal_m = Variable('tidal_heat', self.moon_tidal_ene.value)
             eccen_m = Variable('eccentricity', self.moon_eccentricty)
             initial_variables = [motion_m, omega_p, motion_p, temper_m, tidal_m, eccen_m]
-            if self.parameters['em_ini'] == 0.0:
+            if self.moon_eccentricty == 0.0:
                 initial_variables = [motion_m, omega_p, motion_p, temper_m, tidal_m]
 
             print(f'\nStellar mass: {self.star_mass:.1f}\n',
@@ -244,6 +231,124 @@ class TidalSimulation(Simulation):
                   f'Moon orbital period: {moon_semimaxis:.1f} a_roche ({self.moon_orbperiod:.1f} days)\n')
 
         super().__init__(variables=initial_variables)
+
+    @property
+    def sim_parameters(self):
+        # Parameters dictionary of the simulation
+        return dict(
+            Ms=self.star_mass.to(u.kg).value, Rs=self.star_radius.to(u.m).value, Ls=self.star_luminosity.value,
+            coeff_star=self.star_angular_coeff, star_alpha=self.star_alpha,
+            star_beta=self.star_beta, os_saturation=self.star_saturation_rate.value,
+            star_age=self.star_age.to(u.s).value, coeff_planet=self.planet_angular_coeff,
+            Mp=self.planet_mass.to(u.kg).value, Rp=self.planet_radius.to(u.m).value, planet_alpha=self.planet_alpha,
+            planet_beta=self.planet_beta, rigidity=self.planet_rigidity.value,
+            E_act=self.activation_energy.value, B=self.melt_fraction_coeff,
+            Ts=self.solidus_temperature.value, Tb=self.breakdown_temperature.value,
+            Tl=self.liquidus_temperature.value, Cp=self.heat_capacity.value,
+            ktherm=self.thermal_conductivity.value, Rac=self.Rayleigh_critical,
+            a2=self.flow_geometry, alpha_exp=self.thermal_expansivity.value,
+            densm=self.moon_density.value, Mm=self.moon_mass.to(u.kg).value, Rm=self.moon_radius.to(u.m).value,
+            melt_fr=self.melt_fraction, sun_omega=self.sun_omega.value,
+            sun_mass_loss_rate=self.sun_mass_loss_rate.to(u.kg * u.s**-1).value,
+            nm_ini=self.moon_meanmo.value, np_ini=self.planet_meanmo.value,
+            op_ini=self.planet_omega.value, Tm_ini=self.moon_temperature.value,
+            Em_ini=self.moon_tidal_ene.value, em_ini=self.moon_eccentricty,
+            args=self.args
+        )
+
+    # **********************************************************************************************
+    # ******************************* GENERAL CONSTANTS MODIFIABLE *********************************
+    # **********************************************************************************************
+
+    @property
+    def sun_mass_loss_rate(self):
+        return self._sun_mass_loss_rate
+
+    @sun_mass_loss_rate.setter
+    def sun_mass_loss_rate(self, value):
+        self._sun_mass_loss_rate = value
+        if not isinstance(self._sun_mass_loss_rate, u.Quantity):
+            self._sun_mass_loss_rate = u.Quantity(value, u.Msun * u.yr**-1)
+
+    @property
+    def sun_omega(self):
+        return self._sun_omega
+
+    @sun_omega.setter
+    def sun_omega(self, value):
+        self._sun_omega = value
+        if not isinstance(self._sun_omega, u.Quantity):
+            self._sun_omega = u.Quantity(value, u.s**-1)
+
+    @property
+    def activation_energy(self):
+        return self._activation_energy
+
+    @activation_energy.setter
+    def activation_energy(self, value):
+        self._activation_energy = value
+        if not isinstance(self._activation_energy, u.Quantity):
+            self._activation_energy = u.Quantity(value, u.J * u.mol**-1)
+
+    @property
+    def solidus_temperature(self):
+        return self._solidus_temperature
+
+    @solidus_temperature.setter
+    def solidus_temperature(self, value):
+        self._solidus_temperature = value
+        if not isinstance(self._solidus_temperature, u.Quantity):
+            self._solidus_temperature = u.Quantity(value, u.K)
+
+    @property
+    def liquidus_temperature(self):
+        return self._liquidus_temperature
+
+    @liquidus_temperature.setter
+    def liquidus_temperature(self, value):
+        self._liquidus_temperature = value
+        if not isinstance(self._liquidus_temperature, u.Quantity):
+            self._liquidus_temperature = u.Quantity(value, u.K)
+
+    @property
+    def breakdown_temperature(self):
+        return self._breakdown_temperature
+
+    @breakdown_temperature.setter
+    def breakdown_temperature(self, value):
+        self._breakdown_temperature = value
+        if not isinstance(self._breakdown_temperature, u.Quantity):
+            self._breakdown_temperature = u.Quantity(value, u.K)
+
+    @property
+    def heat_capacity(self):
+        return self._heat_capacity
+
+    @heat_capacity.setter
+    def heat_capacity(self, value):
+        self._heat_capacity = value
+        if not isinstance(self._heat_capacity, u.Quantity):
+            self._heat_capacity = u.Quantity(value, u.J * u.kg**-1 * u.K**-1)
+
+    @property
+    def thermal_conductivity(self):
+        return self._thermal_conductivity
+
+    @thermal_conductivity.setter
+    def thermal_conductivity(self, value):
+        self._thermal_conductivity = value
+        if not isinstance(self._thermal_conductivity, u.Quantity):
+            self._thermal_conductivity = u.Quantity(value, u.W * u.m**-1 * u.K**-1)
+
+    @property
+    def thermal_expansivity(self):
+        return self._thermal_expansivity
+
+    @thermal_expansivity.setter
+    def thermal_expansivity(self, value):
+        self._thermal_expansivity = value
+        if not isinstance(self._thermal_expansivity, u.Quantity):
+            self._thermal_expansivity = u.Quantity(value, u.K**-1)
 
     # **********************************************************************************************
     # ********************************* STAR DYNAMICAL PROPERTIES **********************************
@@ -536,5 +641,5 @@ class TidalSimulation(Simulation):
         differential_equation = solution_star_planet
         if self.system == 'planet-moon':
             differential_equation = solution_planet_moon
-        super().set_diff_eq(differential_equation, **self.parameters)
+        super().set_diff_eq(differential_equation, **self.sim_parameters)
         return super().run(integration_time, timestep, t0=0)
