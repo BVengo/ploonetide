@@ -9,13 +9,13 @@ from ploonetide.utils.constants import GR, GCONST
 #############################################################
 # DIFFERENTIAL EQUATIONS
 #############################################################
-def dnmdt(q, t, sim_parameters):
+def dnmdt(q, t, parameters):
     """Define the differential equation for the moon mean motion.
 
     Args:
         q (list): vector defining nm
         t (float): time
-        sim_parameters (dict): Dictionary that contains all the sim_parameters for the ODEs..
+        parameters (dict): Dictionary that contains all the parameters for the ODEs..
 
     Returns:
         list: Rate of change of the moon mean motion
@@ -23,21 +23,21 @@ def dnmdt(q, t, sim_parameters):
     nm = q[0]
 
     # Evolving conditions
-    args = sim_parameters['args']
+    args = parameters['args']
 
     # Primary properties
-    Mp = sim_parameters['Mp']
-    alpha_planet = sim_parameters['planet_alpha']
-    beta_planet = sim_parameters['planet_beta']
-    rigidity = sim_parameters['rigidity']
-    Mm = sim_parameters['Mm']
+    Mp = parameters['Mp']
+    alpha_planet = parameters['planet_alpha']
+    beta_planet = parameters['planet_beta']
+    rigidity = parameters['rigidity']
+    Mm = parameters['Mm']
 
     # Dynamic parameter
-    op = sim_parameters['op']
-    if sim_parameters['em_ini'] == 0.0:
+    op = parameters['op']
+    if parameters['em_ini'] == 0.0:
         eccm = 0.0
     else:
-        eccm = sim_parameters['eccm']
+        eccm = parameters['eccm']
 
     # Secondary properties
     if not args['planet_size_evolution']:
@@ -57,7 +57,7 @@ def dnmdt(q, t, sim_parameters):
         k2q_planet_envelope = k2Q_planet_envelope(alpha_planet, beta_planet, epsilon)
         k2q_planet = k2q_planet_core + k2q_planet_envelope
 
-    if sim_parameters['em_ini'] == 0.0:
+    if parameters['em_ini'] == 0.0:
         dnmdt = (-9. / 2 * k2q_planet * Mm * Rp**5 / (GCONST**(5. / 3) * Mp**(8. / 3))
                  * nm**(16. / 3) * np.sign(op - nm))
     else:
@@ -67,13 +67,13 @@ def dnmdt(q, t, sim_parameters):
     return [dnmdt]
 
 
-def demdt(q, t, sim_parameters):
+def demdt(q, t, parameters):
     """Define the differential equation for the eccentricity of the moon.
 
     Args:
         q (list): vector defining em
         t (float): time
-        sim_parameters (dict): Dictionary that contains all the sim_parameters for the ODEs..
+        parameters (dict): Dictionary that contains all the parameters for the ODEs..
 
     Returns:
         list: Eccentricity of the moon
@@ -81,18 +81,18 @@ def demdt(q, t, sim_parameters):
     eccm = q[0]
 
     # Evolving conditions
-    args = sim_parameters['args']
+    args = parameters['args']
 
     # Primary properties
-    Mp = sim_parameters['Mp']
-    alpha_planet = sim_parameters['planet_alpha']
-    beta_planet = sim_parameters['planet_beta']
-    rigidity = sim_parameters['rigidity']
-    Mm = sim_parameters['Mm']
+    Mp = parameters['Mp']
+    alpha_planet = parameters['planet_alpha']
+    beta_planet = parameters['planet_beta']
+    rigidity = parameters['rigidity']
+    Mm = parameters['Mm']
 
     # Dynamic parameter
-    op = sim_parameters['op']
-    nm = sim_parameters['nm']
+    op = parameters['op']
+    nm = parameters['nm']
 
     # Secondary properties
     if not args['planet_size_evolution']:
@@ -118,13 +118,13 @@ def demdt(q, t, sim_parameters):
     return [demdt]
 
 
-def dopdt(q, t, sim_parameters):
+def dopdt(q, t, parameters):
     """Define the differential equation for the rotational rate of the planet.
 
     Args:
         q (list): vector defining op
         t (float): time
-        sim_parameters (dict): Dictionary that contains all the sim_parameters for the ODEs.
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
 
     Returns:
         list: rotational rate of the planet
@@ -132,19 +132,19 @@ def dopdt(q, t, sim_parameters):
     op = q[0]
 
     # Evolving conditions
-    args = sim_parameters['args']
+    args = parameters['args']
 
     # Primary properties
-    Mp = sim_parameters['Mp']
-    alpha_planet = sim_parameters['planet_alpha']
-    beta_planet = sim_parameters['planet_beta']
-    rigidity = sim_parameters['rigidity']
-    Mm = sim_parameters['Mm']
-    npp = sim_parameters['npp']
+    Mp = parameters['Mp']
+    alpha_planet = parameters['planet_alpha']
+    beta_planet = parameters['planet_beta']
+    rigidity = parameters['rigidity']
+    Mm = parameters['Mm']
+    npp = parameters['npp']
 
     # Dynamic parameter
-    nm = sim_parameters['nm']
-    npp = sim_parameters['npp']
+    nm = parameters['nm']
+    npp = parameters['npp']
 
     # Secondary properties
     if not args['planet_size_evolution']:
@@ -174,13 +174,13 @@ def dopdt(q, t, sim_parameters):
     return [dopdt]
 
 
-def dnpdt(q, t, sim_parameters):
+def dnpdt(q, t, parameters):
     """Define the differential equation for the mean motion of the planet.
 
     Args:
         q (list): vector defining np
         t (float): time
-        sim_parameters (dict): Dictionary that contains all the sim_parameters for the ODEs.
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
 
     Returns:
         list: mean motion of the planet
@@ -188,17 +188,17 @@ def dnpdt(q, t, sim_parameters):
     npp = q[0]
 
     # Evolving conditions
-    args = sim_parameters['args']
+    args = parameters['args']
 
     # Primary properties
-    Ms = sim_parameters['Ms']
-    Mp = sim_parameters['Mp']
-    alpha_planet = sim_parameters['planet_alpha']
-    beta_planet = sim_parameters['planet_beta']
-    rigidity = sim_parameters['rigidity']
+    Ms = parameters['Ms']
+    Mp = parameters['Mp']
+    alpha_planet = parameters['planet_alpha']
+    beta_planet = parameters['planet_beta']
+    rigidity = parameters['rigidity']
 
     # Dynamic parameter
-    op = sim_parameters['op']
+    op = parameters['op']
 
     # Secondary properties
     if not args['planet_size_evolution']:
@@ -227,40 +227,40 @@ def dnpdt(q, t, sim_parameters):
 #############################################################
 # INTEGRATION OF THE TIDAL HEAT
 #############################################################
-def dEmdt(q, t, sim_parameters):
+def dEmdt(q, t, parameters):
     """Define the differential equation for the tidal energy of the moon.
 
     Args:
         q (list): vector defining Em
         t (float): time
-        sim_parameters (dict): Dictionary that contains all the sim_parameters for the ODEs.
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
 
     Returns:
         list: Tidal energy of the moon
     """
     E = q[0]
 
-    # General sim_parameters
-    E_act = sim_parameters['E_act']
-    B = sim_parameters['B']
-    Ts = sim_parameters['Ts']
-    Tb = sim_parameters['Tb']
-    Tl = sim_parameters['Tl']
+    # General parameters
+    E_act = parameters['E_act']
+    B = parameters['B']
+    Ts = parameters['Ts']
+    Tb = parameters['Tb']
+    Tl = parameters['Tl']
 
-    # Moon sim_parameters
-    densm = sim_parameters['densm']
-    Mm = sim_parameters['Mm']
-    Rm = sim_parameters['Rm']
-    melt_fr = sim_parameters['melt_fr']
+    # Moon parameters
+    densm = parameters['densm']
+    Mm = parameters['Mm']
+    Rm = parameters['Rm']
+    melt_fr = parameters['melt_fr']
 
-    # Dynamic sim_parameters
-    Tm = sim_parameters['Tm']
-    nm = sim_parameters['nm']
+    # Dynamic parameters
+    Tm = parameters['Tm']
+    nm = parameters['nm']
 
-    if sim_parameters['em_ini'] == 0.0:
+    if parameters['em_ini'] == 0.0:
         eccm = 0.0
     else:
-        eccm = sim_parameters['eccm']
+        eccm = parameters['eccm']
 
     dEdt = e_tidal(Tm, nm, densm=densm, Mm=Mm, Rm=Rm, E_act=E_act, melt_fr=melt_fr, B=B, Ts=Ts,
                    Tb=Tb, Tl=Tl, eccm=eccm)
@@ -271,44 +271,44 @@ def dEmdt(q, t, sim_parameters):
 #############################################################
 # INTEGRATION OF THE TEMPERATURE
 #############################################################
-def dTmdt(q, t, sim_parameters):
+def dTmdt(q, t, parameters):
     """Define the differential equation for the temperatue of the moon.
 
     Args:
         q (list): vector defining Tm
         t (float): time
-        sim_parameters (dict): Dictionary that contains all the sim_parameters for the ODEs.
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
 
     Returns:
         list: Temperature of the moon
     """
     Tm = q[0]
 
-    # General sim_parameters
-    E_act = sim_parameters['E_act']
-    B = sim_parameters['B']
-    Ts = sim_parameters['Ts']
-    Tb = sim_parameters['Tb']
-    Tl = sim_parameters['Tl']
-    Cp = sim_parameters['Cp']
-    ktherm = sim_parameters['ktherm']
-    Rac = sim_parameters['Rac']
-    a2 = sim_parameters['a2']
-    alpha_exp = sim_parameters['alpha_exp']
+    # General parameters
+    E_act = parameters['E_act']
+    B = parameters['B']
+    Ts = parameters['Ts']
+    Tb = parameters['Tb']
+    Tl = parameters['Tl']
+    Cp = parameters['Cp']
+    ktherm = parameters['ktherm']
+    Rac = parameters['Rac']
+    a2 = parameters['a2']
+    alpha_exp = parameters['alpha_exp']
 
-    # Moon sim_parameters
-    densm = sim_parameters['densm']
-    Mm = sim_parameters['Mm']
-    Rm = sim_parameters['Rm']
-    melt_fr = sim_parameters['melt_fr']
+    # Moon parameters
+    densm = parameters['densm']
+    Mm = parameters['Mm']
+    Rm = parameters['Rm']
+    melt_fr = parameters['melt_fr']
 
     # Dynamic parameter
-    nm = sim_parameters['nm']
+    nm = parameters['nm']
 
-    if sim_parameters['em_ini'] == 0.0:
+    if parameters['em_ini'] == 0.0:
         eccm = 0.0
     else:
-        eccm = sim_parameters['eccm']
+        eccm = parameters['eccm']
 
     dEdt = e_tidal(Tm, nm, densm=densm, Mm=Mm, Rm=Rm, E_act=E_act, melt_fr=melt_fr,
                    B=B, Ts=Ts, Tb=Tb, Tl=Tl, eccm=eccm)
@@ -345,13 +345,13 @@ def dTmdt(q, t, sim_parameters):
 #############################################################
 # INTEGRATION OF THE WHOLE SYSTEM
 #############################################################
-def solution_planet_moon(q, t, sim_parameters):
+def solution_planet_moon(q, t, parameters):
     """Define the coupled differential equation for the system of EDOs.
 
     Args:
         q (list): vector defining np
         t (float): time
-        sim_parameters (dict): Dictionary that contains all the sim_parameters for the ODEs.
+        parameters (dict): Dictionary that contains all the parameters for the ODEs.
 
     Returns:
         list: mean motion of the planet
@@ -362,26 +362,26 @@ def solution_planet_moon(q, t, sim_parameters):
     Tm = q[3]
     Em = q[4]
 
-    if sim_parameters['em_ini'] != 0.0:
+    if parameters['em_ini'] != 0.0:
         eccm = q[5]
-        sim_parameters['eccm'] = eccm
+        parameters['eccm'] = eccm
 
-    sim_parameters['nm'] = nm
-    sim_parameters['op'] = op
-    sim_parameters['npp'] = npp
-    sim_parameters['Tm'] = Tm
-    sim_parameters['Em'] = Em
+    parameters['nm'] = nm
+    parameters['op'] = op
+    parameters['npp'] = npp
+    parameters['Tm'] = Tm
+    parameters['Em'] = Em
 
-    dnmdtm = dnmdt([nm], t, sim_parameters)
-    dopdtp = dopdt([op], t, sim_parameters)
-    dnpdtp = dnpdt([npp], t, sim_parameters)
-    dTmdtm = dTmdt([Tm], t, sim_parameters)
-    dEmdtm = dEmdt([Em], t, sim_parameters)
+    dnmdtm = dnmdt([nm], t, parameters)
+    dopdtp = dopdt([op], t, parameters)
+    dnpdtp = dnpdt([npp], t, parameters)
+    dTmdtm = dTmdt([Tm], t, parameters)
+    dEmdtm = dEmdt([Em], t, parameters)
 
     solution = dnmdtm + dopdtp + dnpdtp + dTmdtm + dEmdtm
 
-    if sim_parameters['em_ini'] != 0.0:
-        demdtm = demdt([eccm], t, sim_parameters)
+    if parameters['em_ini'] != 0.0:
+        demdtm = demdt([eccm], t, parameters)
         solution = dnmdtm + dopdtp + dnpdtp + dTmdtm + dEmdtm + demdtm
 
     return solution

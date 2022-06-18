@@ -23,36 +23,17 @@ class TidalSimulation(Simulation):
     """This class defines a tidal simulation.
 
     Attributes:
-        Args:
-            moon_albedo (float, optional): Moon albedo [No unit]
-            moon_eccentricty (float, optional): Eccentricity of moon's orbit [No unit]
-            moon_mass (int, optional): Moon mass [Mearth]
-            moon_radius (int, optional): Moon radius [Rearth]
-            moon_rotperiod (float): Rotation period of the moon [s]
-            moon_temperature (float): Temperature of the moon [K]
-            planet_alpha (float, optional): Planet's radius aspect ratio [No unit]
-            planet_angular_coeff (float, optional): Planet's mass fraction involved in angular momentum exchange [No unit]
-            planet_beta (float, optional): Planet's mass aspect ratio [No unit]
-            planet_eccentricity (float, optional): Planetary eccentricty [No unit]
-            planet_mass (int, optional): Planetary mass [Mjup]
-            planet_orbperiod (None, optional): Planetary orbital period [d]
-            planet_radius (None, optional): Planetary radius [Rjup]
-            planet_rigidity (float, optional): Rigidity of the planet [Pa]
-            planet_roche_radius (float): Roche radius of the planet [m]
-            planet_rotperiod (float, optional): Planetary rotation period [d]
-            star_age (int, optional): Stellar age [Gyr]
-            star_alpha (float, optional): Stellar radius aspect ratio [No unit]
-            star_angular_coeff (float, optional): Star's fraction of mass partaking in angular momentum exchange [No unit]
-            star_beta (float, optional): Stellar mass aspect ratio [No unit]
-            star_eff_temperature (int, optional): Stellar effective temperature [K]
-            star_mass (int, optional): Stellar mass [Msun]
-            star_radius (int, optional): Stellar radius [Rsun]
-            star_rotperiod (int, optional): Stellar rotation period [d]
-            star_saturation_rate (float, optional): Star's saturation rotational rate [rad s^-1]
-            sun_mass_loss_rate (float, optional): Solar mass loss rate [Msun yr^-1]
-            sun_omega (float, optional): Solar rotational rate [s^-1]
-            system (str, optional): Flag to choose type of system. Either 'star-planet' or 'planet-moon'
-
+        system (str, optional): Flag to choose type of system. Either 'star-planet' or 'planet-moon'
+        moon_albedo (float, optional): Moon albedo [No unit]
+        moon_temperature (float): Temperature of the moon [K]
+        planet_alpha (float, optional): Planet's radius aspect ratio [No unit]
+        planet_angular_coeff (float, optional): Planet's mass fraction for angular momentum exchange [No unit]
+        planet_beta (float, optional): Planet's mass aspect ratio [No unit]
+        planet_roche_radius (float): Roche radius of the planet [m]
+        planet_rotperiod (float, optional): Planetary rotation period [d]
+        star_alpha (float, optional): Stellar radius aspect ratio [No unit]
+        star_angular_coeff (float, optional): Star's mass fraction for angular momentum exchange [No unit]
+        star_beta (float, optional): Stellar mass aspect ratio [No unit]
         moon_density (float): Density of the moon [kg * m^-3]
         moon_meanmo (float): Initial mean motion of the moon [s^-1]
         moon_radius (int, optional): Moon radius [Rearth]
@@ -65,11 +46,9 @@ class TidalSimulation(Simulation):
         planet_meanmo (float): Initial mean motion of the planet [s^-1]
         planet_omega (float): Initial rotational rate of the planet [s^-1]
         planet_roche_radius (float): Roche radius of the planet [m]
-        planet_semimaaxis (float): Semi-major axis of the planet [m]
+        planet_semimaxis (float): Semi-major axis of the planet [m]
         star_alpha (float, optional): Stellar radius aspect ratio [No unit]
-        star_angular_coeff (float, optional): Star's fraction of mass partaking in angular momentum exchange [No unit]
         star_beta (float, optional): Stellar mass aspect ratio [No unit]
-        star_eff_temperature (int, optional): Stellar effective temperature [K]
         star_epsilon (float): Description
         star_k2q (float): Tidal heat function of the star [J^-1]
         star_luminosity (float): Stellar luminosity [W]
@@ -94,7 +73,7 @@ class TidalSimulation(Simulation):
                  moon_semimaxis=10, system='star-planet'):
         """Construct the class
 
-        Args:
+        Args (and attributes):
             activation_energy (float, optional): Energy of activation, default is 3e5 [J mol^-1]
             melt_fraction (float, optional): Fraction of melt for ice, default is 0.5 [No unit]
             heat_capacity (int, optional): Heat capacity of moon material, default is 1260 [J kg^-1 K^-1]
@@ -106,6 +85,23 @@ class TidalSimulation(Simulation):
             Rayleigh_critical (int, optional): Critical rayleigh number, default is 1100 [No unit]
             flow_geometry (int, optional): Constant for flow geometry [No unit]
             thermal_expansivity (float, optional): Thermal expansivity of the moon, default is 1E-4 [K^-1]
+            sun_mass_loss_rate (float, optional): Solar mass loss rate [Msun yr^-1]
+            star_rotperiod (int, optional): Stellar rotation period [d]
+            star_saturation_rate (float, optional): Star's saturation rotational rate [rad s^-1]
+            sun_omega (float, optional): Solar rotational rate [s^-1]
+            star_age (int, optional): Stellar age [Gyr]
+            star_eff_temperature (int, optional): Stellar effective temperature [K]
+            star_mass (int, optional): Stellar mass [Msun]
+            star_radius (int, optional): Stellar radius [Rsun]
+            planet_eccentricity (float, optional): Planetary eccentricty [No unit]
+            planet_mass (int, optional): Planetary mass [Mjup]
+            planet_orbperiod (None, optional): Planetary orbital period [d]
+            planet_radius (None, optional): Planetary radius [Rjup]
+            planet_rigidity (float, optional): Rigidity of the planet [Pa]
+            moon_mass (int, optional): Moon mass [Mearth]
+            moon_radius (int, optional): Moon radius [Rearth]
+            moon_rotperiod (float): Rotation period of the moon [s]
+            moon_eccentricty (float, optional): Eccentricity of moon's orbit [No unit]
         """
 
         print(pyfiglet.figlet_format(f'{self.package}'))
@@ -188,11 +184,11 @@ class TidalSimulation(Simulation):
         # INITIAL CONDITIONS FOR THE SYSTEM
         # ************************************************************
         if self.system == 'star-planet':
-            self.sim_parameters["om_ini"] = self.planet_omega.value  # Initial planet's rotational rate
-            self.sim_parameters["e_ini"] = self.planet_eccentricity  # Initial eccentricity
-            self.sim_parameters["os_ini"] = self.star_omega.value  # Initial star's rotational rate
-            self.sim_parameters["npp_ini"] = self.planet_meanmo.value  # Initial planet mean motion
-            self.sim_parameters["mp_ini"] = self.planet_mass.to(u.kg).value  # Initial planetary mass
+            self.parameters["om_ini"] = self.planet_omega.value  # Initial planet's rotational rate
+            self.parameters["e_ini"] = self.planet_eccentricity  # Initial eccentricity
+            self.parameters["os_ini"] = self.star_omega.value  # Initial star's rotational rate
+            self.parameters["npp_ini"] = self.planet_meanmo.value  # Initial planet mean motion
+            self.parameters["mp_ini"] = self.planet_mass.to(u.kg).value  # Initial planetary mass
 
             motion_p = Variable('planet_mean_motion', self.planet_meanmo.value)
             omega_p = Variable('planet_omega', self.planet_omega.value)
@@ -204,16 +200,9 @@ class TidalSimulation(Simulation):
             print(f'\nStellar mass: {self.star_mass:.1f} Msun\n',
                   f'Planet orbital period: {self.planet_orbperiod:.1f} days\n',
                   f'Planetary mass: {self.planet_mass:.1f} Mjup\n',
-                  f'Planetary radius: {self.planet_radius.value / PLANETS.Jupiter.R:.1f} Rjup\n')
+                  f'Planetary radius: {self.planet_radius.value:.1f} Rjup\n')
 
         elif self.system == 'planet-moon':
-            # self._sim_parameters['nm_ini'] = self.moon_meanmo.value  # Moon's initial mean motion
-            # self._sim_parameters['np_ini'] = self.planet_meanmo.value  # PLanet's initial mean motion
-            # self._sim_parameters['op_ini'] = self.planet_omega.value   # Planet's initial rotation rate
-            # self._sim_parameters['Tm_ini'] = self.moon_temperature.value  # Moon's initial temperature
-            # self._sim_parameters['Em_ini'] = self.moon_tidal_ene.value  # Moon's initial tidal heat
-            # self._sim_parameters['em_ini'] = self.moon_eccentricty  # Moon's initial eccentricity
-
             motion_m = Variable('mean_motion_m', self.moon_meanmo.value)
             omega_p = Variable('omega_planet', self.planet_omega.value)
             motion_p = Variable('mean_motion_p', self.planet_meanmo.value)
@@ -233,27 +222,28 @@ class TidalSimulation(Simulation):
         super().__init__(variables=initial_variables)
 
     @property
-    def sim_parameters(self):
+    def parameters(self):
         # Parameters dictionary of the simulation
         return dict(
-            Ms=self.star_mass.to(u.kg).value, Rs=self.star_radius.to(u.m).value, Ls=self.star_luminosity.value,
-            coeff_star=self.star_angular_coeff, star_alpha=self.star_alpha,
-            star_beta=self.star_beta, os_saturation=self.star_saturation_rate.value,
-            star_age=self.star_age.to(u.s).value, coeff_planet=self.planet_angular_coeff,
-            Mp=self.planet_mass.to(u.kg).value, Rp=self.planet_radius.to(u.m).value, planet_alpha=self.planet_alpha,
+            Ms=self.star_mass.to(u.kg).value, Rs=self.star_radius.to(u.m).value,
+            Ls=self.star_luminosity.value, coeff_star=self.star_angular_coeff,
+            star_alpha=self.star_alpha, star_beta=self.star_beta,
+            os_saturation=self.star_saturation_rate.value, star_age=self.star_age.to(u.s).value,
+            coeff_planet=self.planet_angular_coeff, Mp=self.planet_mass.to(u.kg).value,
+            Rp=self.planet_radius.to(u.m).value, planet_alpha=self.planet_alpha,
             planet_beta=self.planet_beta, rigidity=self.planet_rigidity.value,
             E_act=self.activation_energy.value, B=self.melt_fraction_coeff,
             Ts=self.solidus_temperature.value, Tb=self.breakdown_temperature.value,
             Tl=self.liquidus_temperature.value, Cp=self.heat_capacity.value,
             ktherm=self.thermal_conductivity.value, Rac=self.Rayleigh_critical,
             a2=self.flow_geometry, alpha_exp=self.thermal_expansivity.value,
-            densm=self.moon_density.value, Mm=self.moon_mass.to(u.kg).value, Rm=self.moon_radius.to(u.m).value,
-            melt_fr=self.melt_fraction, sun_omega=self.sun_omega.value,
+            densm=self.moon_density.value, Mm=self.moon_mass.to(u.kg).value,
+            Rm=self.moon_radius.to(u.m).value, melt_fr=self.melt_fraction,
             sun_mass_loss_rate=self.sun_mass_loss_rate.to(u.kg * u.s**-1).value,
-            nm_ini=self.moon_meanmo.value, np_ini=self.planet_meanmo.value,
-            op_ini=self.planet_omega.value, Tm_ini=self.moon_temperature.value,
-            Em_ini=self.moon_tidal_ene.value, em_ini=self.moon_eccentricty,
-            args=self.args
+            sun_omega=self.sun_omega.value, nm_ini=self.moon_meanmo.value,
+            np_ini=self.planet_meanmo.value, op_ini=self.planet_omega.value,
+            Tm_ini=self.moon_temperature.value, Em_ini=self.moon_tidal_ene.value,
+            em_ini=self.moon_eccentricty, args=self.args
         )
 
     # **********************************************************************************************
@@ -525,14 +515,14 @@ class TidalSimulation(Simulation):
         return u.Quantity(2. * np.pi / self.planet_rotperiod.to(u.s).value, u.s**-1)
 
     @property
-    def planet_semimaaxis(self):
+    def planet_semimaxis(self):
         return u.Quantity(semiMajorAxis(self.planet_orbperiod.to(u.s).value,
                                         self.star_mass.to(u.kg).value,
                                         self.planet_mass.to(u.kg).value), u.m).to(u.au)
 
     @property
     def planet_meanmo(self):
-        return u.Quantity(meanMotion(self.planet_semimaaxis.to(u.m).value,
+        return u.Quantity(meanMotion(self.planet_semimaxis.to(u.m).value,
                                      self.star_mass.to(u.kg).value,
                                      self.planet_mass.to(u.kg).value), u.s**-1)
 
@@ -555,7 +545,7 @@ class TidalSimulation(Simulation):
         return u.Quantity(2.7 * (self.star_mass.to(u.kg).value / self.planet_mass.to(u.kg).value)**(1. / 3.) * self.planet_radius.to(u.m).value, u.m).to(u.AU)  # Roche radius of the planet (Guillochon et. al 2011)
 
     # **********************************************************************************************
-    # ******************************** MOON DYNAMICAL PROPERTIES *********************************
+    # ******************************** MOON DYNAMICAL PROPERTIES ***********************************
     # **********************************************************************************************
     @property
     def moon_mass(self):
@@ -607,7 +597,7 @@ class TidalSimulation(Simulation):
     @property
     def moon_temperature(self):
         return u.Quantity(equil_temp(self.star_eff_temperature.value, self.star_radius.to(u.m).value,
-                                     self.planet_semimaaxis.to(u.m).value, self.moon_albedo), u.K)
+                                     self.planet_semimaxis.to(u.m).value, self.moon_albedo), u.K)
 
     @property
     def moon_tidal_ene(self):
@@ -641,5 +631,5 @@ class TidalSimulation(Simulation):
         differential_equation = solution_star_planet
         if self.system == 'planet-moon':
             differential_equation = solution_planet_moon
-        super().set_diff_eq(differential_equation, **self.sim_parameters)
+        super().set_diff_eq(differential_equation, **self.parameters)
         return super().run(integration_time, timestep, t0=0)
