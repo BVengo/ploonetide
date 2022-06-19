@@ -69,7 +69,7 @@ class TidalSimulation(Simulation):
                  planet_radius=None, planet_angular_coeff=0.26401, planet_orbperiod=None,
                  planet_rotperiod=0.6, planet_eccentricity=0.1, planet_rigidity=4.46E10,
                  planet_alpha=PLANETS.Jupiter.alpha, planet_beta=PLANETS.Jupiter.beta,
-                 moon_radius=1, moon_mass=1, moon_albedo=0.3, moon_eccentricty=0.02,
+                 moon_radius=1, moon_mass=1, moon_albedo=0.3, moon_eccentricity=0.02,
                  moon_semimaxis=10, system='star-planet'):
         """Construct the class
 
@@ -93,7 +93,7 @@ class TidalSimulation(Simulation):
             star_eff_temperature (int, optional): Stellar effective temperature [K]
             star_mass (int, optional): Stellar mass [Msun]
             star_radius (int, optional): Stellar radius [Rsun]
-            planet_eccentricity (float, optional): Planetary eccentricty [No unit]
+            planet_eccentricity (float, optional): Planetary eccentricity [No unit]
             planet_mass (int, optional): Planetary mass [Mjup]
             planet_orbperiod (None, optional): Planetary orbital period [d]
             planet_radius (None, optional): Planetary radius [Rjup]
@@ -101,7 +101,7 @@ class TidalSimulation(Simulation):
             moon_mass (int, optional): Moon mass [Mearth]
             moon_radius (int, optional): Moon radius [Rearth]
             moon_rotperiod (float): Rotation period of the moon [s]
-            moon_eccentricty (float, optional): Eccentricity of moon's orbit [No unit]
+            moon_eccentricity (float, optional): Eccentricity of moon's orbit [No unit]
         """
 
         print(pyfiglet.figlet_format(f'{self.package}'))
@@ -169,7 +169,7 @@ class TidalSimulation(Simulation):
         self._moon_mass = u.Quantity(moon_mass, u.Mearth)
         self._moon_radius = u.Quantity(moon_radius, u.Rearth)
         self._moon_semimaxis = u.Quantity(moon_semimaxis * self.moon_roche_radius.value, u.m)
-        self.moon_eccentricty = moon_eccentricty
+        self.moon_eccentricity = moon_eccentricity
         self.moon_albedo = moon_albedo
 
         # Arguments for including/excluding different effects
@@ -184,12 +184,6 @@ class TidalSimulation(Simulation):
         # INITIAL CONDITIONS FOR THE SYSTEM
         # ************************************************************
         if self.system == 'star-planet':
-            self.parameters["om_ini"] = self.planet_omega.value  # Initial planet's rotational rate
-            self.parameters["e_ini"] = self.planet_eccentricity  # Initial eccentricity
-            self.parameters["os_ini"] = self.star_omega.value  # Initial star's rotational rate
-            self.parameters["npp_ini"] = self.planet_meanmo.value  # Initial planet mean motion
-            self.parameters["mp_ini"] = self.planet_mass.to(u.kg).value  # Initial planetary mass
-
             motion_p = Variable('planet_mean_motion', self.planet_meanmo.value)
             omega_p = Variable('planet_omega', self.planet_omega.value)
             eccen_p = Variable('planet_eccentricity', self.planet_eccentricity)
@@ -203,21 +197,27 @@ class TidalSimulation(Simulation):
                   f'Planetary radius: {self.planet_radius.value:.1f} Rjup\n')
 
         elif self.system == 'planet-moon':
-            motion_m = Variable('mean_motion_m', self.moon_meanmo.value)
             omega_p = Variable('omega_planet', self.planet_omega.value)
             motion_p = Variable('mean_motion_p', self.planet_meanmo.value)
+            motion_m = Variable('mean_motion_m', self.moon_meanmo.value)
             temper_m = Variable('temperature', self.moon_temperature.value)
             tidal_m = Variable('tidal_heat', self.moon_tidal_ene.value)
-            eccen_m = Variable('eccentricity', self.moon_eccentricty)
-            initial_variables = [motion_m, omega_p, motion_p, temper_m, tidal_m, eccen_m]
-            if self.moon_eccentricty == 0.0:
-                initial_variables = [motion_m, omega_p, motion_p, temper_m, tidal_m]
+            eccen_m = Variable('eccentricity', self.moon_eccentricity)
+            initial_variables = [omega_p, motion_p, motion_m, temper_m, tidal_m, eccen_m]
+            if self.moon_eccentricity == 0.0:
+                initial_variables = [omega_p, motion_p, motion_m, temper_m, tidal_m]
 
-            print(f'\nStellar mass: {self.star_mass:.1f}\n',
+            print(f'\nStar mass: {self.star_mass:.1f}\n',
+                  f'Star radius: {self.star_radius:.1f}\n',
+                  f'Star rotation period: {self.star_rotperiod:.1f}\n',
                   f'Planet orbital period: {self.planet_orbperiod:.1f}\n',
-                  f'Planetary mass: {self.planet_mass:.1f}\n',
-                  f'Planetary radius: {self.planet_radius:.1f}\n',
-                  f'Moon orbital period: {moon_semimaxis:.1f} a_roche ({self.moon_orbperiod:.1f} days)\n')
+                  f'Planet mass: {self.planet_mass:.1f}\n',
+                  f'Planet radius: {self.planet_radius:.1f}\n',
+                  f'Planet eccentricity: {self.planet_eccentricity:.1f}\n',
+                  f'Moon mass: {self.moon_mass:.1f}\n',
+                  f'Moon radius: {self.moon_radius:.1f}\n',
+                  f'Moon eccentricity: {self.moon_eccentricity:.1f}\n',
+                  f'Moon orbital period: {moon_semimaxis:.1f} a_roche ({self.moon_orbperiod:.1f})\n')
 
         super().__init__(variables=initial_variables)
 
@@ -240,10 +240,12 @@ class TidalSimulation(Simulation):
             densm=self.moon_density.value, Mm=self.moon_mass.to(u.kg).value,
             Rm=self.moon_radius.to(u.m).value, melt_fr=self.melt_fraction,
             sun_mass_loss_rate=self.sun_mass_loss_rate.to(u.kg * u.s**-1).value,
-            sun_omega=self.sun_omega.value, nm_ini=self.moon_meanmo.value,
+            sun_omega=self.sun_omega.value, os_ini=self.star_omega.value,
             np_ini=self.planet_meanmo.value, op_ini=self.planet_omega.value,
-            Tm_ini=self.moon_temperature.value, Em_ini=self.moon_tidal_ene.value,
-            em_ini=self.moon_eccentricty, args=self.args
+            ep_ini=self.planet_eccentricity, mp_ini=self.planet_mass.to(u.kg).value,
+            nm_ini=self.moon_meanmo.value, Tm_ini=self.moon_temperature.value,
+            Em_ini=self.moon_tidal_ene.value, em_ini=self.moon_eccentricity,
+            args=self.args
         )
 
     # **********************************************************************************************
@@ -405,7 +407,7 @@ class TidalSimulation(Simulation):
 
     @property
     def star_luminosity(self):
-        return luminosity(self.star_radius.to(u.m).value, self.star_eff_temperature.value)
+        return u.Quantity(luminosity(self.star_radius.to(u.m).value, self.star_eff_temperature.value), u.W)
 
     @star_luminosity.setter
     def star_luminosity(self, value):
@@ -498,7 +500,7 @@ class TidalSimulation(Simulation):
                     mean=self.planet_mass.value, std=0.1, unit='Jupiter',
                     sample_size=200, classify='Yes'
                 )
-            self._planet_radius = u.Quantity(self._planet_radius, u.R_jup)
+                self._planet_radius = u.Quantity(self._planet_radius, u.R_jup)
 
     @property
     def planet_rigidity(self):
@@ -543,6 +545,11 @@ class TidalSimulation(Simulation):
     @property
     def planet_roche_radius(self):
         return u.Quantity(2.7 * (self.star_mass.to(u.kg).value / self.planet_mass.to(u.kg).value)**(1. / 3.) * self.planet_radius.to(u.m).value, u.m).to(u.AU)  # Roche radius of the planet (Guillochon et. al 2011)
+
+    @property
+    def planet_hill_radius(self):
+        return u.Quantity(hill_radius(self.planet_semimaxis.to(u.m).value, self.planet_eccentricity,
+                                      self.planet_mass.to(u.kg).value, self.star_mass.to(u.kg).value), u.m).to(u.AU)
 
     # **********************************************************************************************
     # ******************************** MOON DYNAMICAL PROPERTIES ***********************************
@@ -603,7 +610,7 @@ class TidalSimulation(Simulation):
     def moon_tidal_ene(self):
         return u.Quantity(e_tidal(self.moon_temperature.value, self.moon_meanmo.value,
                                   densm=self.moon_density.value, Mm=self.moon_mass.to(u.kg).value,
-                                  Rm=self.moon_radius.to(u.m).value, eccm=self.moon_eccentricty), u.J * u.s**-1)
+                                  Rm=self.moon_radius.to(u.m).value, eccm=self.moon_eccentricity), u.J * u.s**-1)
 
     @classmethod
     def get_class_name(cls):

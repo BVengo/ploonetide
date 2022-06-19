@@ -40,7 +40,7 @@ def depdt(q, t, parameters):
 
     # Secondary properties planet
     # Rp = Mp2Rp(Mp, mpo, rpo)
-    Rp = Mp2Rp(Mp, t, **args)
+    Rp = Mp2Rp(Mp, t)
     epsilon_planet = om / omegaCritic(Mp, Rp)
     alpha_planet = alpha_planet * parameters['Rp'] / Rp
     beta_planet = beta_planet * parameters['Mp'] / Mp
@@ -116,7 +116,7 @@ def dnpdt(q, t, parameters):
 
     # Secondary properties planet
     # Rp = Mp2Rp(Mp, mpo, rpo)
-    Rp = Mp2Rp(Mp, t, **args)
+    Rp = Mp2Rp(Mp, t)
 
     epsilon_planet = om / omegaCritic(Mp, Rp)
     alpha_planet = alpha_planet * parameters['Rp'] / Rp
@@ -202,7 +202,7 @@ def dompdt(q, t, parameters):
 
     # Secondary properties planet
     # Rp = Mp2Rp(Mp, mpo, rpo)
-    Rp = Mp2Rp(Mp, t, **args)
+    Rp = Mp2Rp(Mp, t)
     epsilon_planet = om / omegaCritic(Mp, Rp)
     alpha_planet = alpha_planet * parameters['Rp'] / Rp
     beta_planet = beta_planet * parameters['Mp'] / Mp
@@ -308,7 +308,7 @@ def dmpdt(q, t, parameters):
     # Secondary properties of the planet
     Mp = parameters['mp']
     # Rp = Mp2Rp(mp, mpo, rpo)
-    Rp = Mp2Rp(Mp, t, **args)
+    Rp = Mp2Rp(Mp, t)
     npp = parameters['npp']
     app = mean2axis(npp, Ms, Mp)
     os = parameters['os']

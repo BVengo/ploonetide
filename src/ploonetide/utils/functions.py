@@ -213,8 +213,8 @@ def aRoche_solid(Mp, Mm, Rm):
     return Rm * (2. * Mp / Mm)**(1. / 3.)
 
 
-def hill_radius(a, Mp, Ms):
-    return a * (Mp / (3.0 * Ms))**(1.0 / 3.0)
+def hill_radius(a, e, m, M):
+    return a * (1 - e) * (m / (3.0 * M))**(1.0 / 3.0)
 
 
 def alpha2beta(Mp, alpha, **args):
@@ -321,18 +321,16 @@ def power(ee, aa, KQ, Ms, Rp):
 # ###################DOBS-DIXON 2004#######################
 
 
-def find_moon_fate(t, am, amr, porb, Mp, Ms):
+def find_moon_fate(t, am, am_roche, ap_hill):
     try:
-        pos = np.where(am <= amr)[0][0]
+        pos = np.where(am <= am_roche)[0][0]
         rt_time = t[pos] / GYEAR
-        print(f'Moon crosses Roche radius in {rt_time:.2f} Gyr')
+        print(f'Moon crosses Roche radius in {rt_time:.4f} Gyr')
     except IndexError:
         try:
-            ap = semiMajorAxis(porb, Ms, Mp)
-            r_hill = hill_radius(ap, Mp, Ms)
-            pos = np.where(am >= 0.48 * r_hill)[0][0]
+            pos = np.where(am >= ap_hill)[0][0]
             rt_time = t[pos] / GYEAR
-            print(f'Moon escapes in {rt_time:.2f} Gyr')
+            print(f'Moon escapes in {rt_time:.4f} Gyr')
         except IndexError:
             pos = -1
             rt_time = np.max(t)

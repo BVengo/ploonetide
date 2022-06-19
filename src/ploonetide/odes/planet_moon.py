@@ -356,9 +356,9 @@ def solution_planet_moon(q, t, parameters):
     Returns:
         list: mean motion of the planet
     """
-    nm = q[0]
-    op = q[1]
-    npp = q[2]
+    op = q[0]
+    npp = q[1]
+    nm = q[2]
     Tm = q[3]
     Em = q[4]
 
@@ -372,16 +372,16 @@ def solution_planet_moon(q, t, parameters):
     parameters['Tm'] = Tm
     parameters['Em'] = Em
 
-    dnmdtm = dnmdt([nm], t, parameters)
     dopdtp = dopdt([op], t, parameters)
     dnpdtp = dnpdt([npp], t, parameters)
+    dnmdtm = dnmdt([nm], t, parameters)
     dTmdtm = dTmdt([Tm], t, parameters)
     dEmdtm = dEmdt([Em], t, parameters)
 
-    solution = dnmdtm + dopdtp + dnpdtp + dTmdtm + dEmdtm
+    solution = dopdtp + dnpdtp + dnmdtm + dTmdtm + dEmdtm
 
     if parameters['em_ini'] != 0.0:
         demdtm = demdt([eccm], t, parameters)
-        solution = dnmdtm + dopdtp + dnpdtp + dTmdtm + dEmdtm + demdtm
+        solution = dopdtp + dnpdtp + dnmdtm + dTmdtm + dEmdtm + demdtm
 
     return solution
