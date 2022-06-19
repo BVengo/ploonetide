@@ -158,7 +158,6 @@ class TidalSimulation(Simulation):
         self._planet_radius = u.Quantity(planet_radius, u.R_jup)
         self._planet_rigidity = u.Quantity(planet_rigidity, u.Pa)
         self.planet_angular_coeff = planet_angular_coeff
-
         self.planet_eccentricity = planet_eccentricity
         self.planet_alpha = planet_alpha
         self.planet_beta = planet_beta
@@ -191,10 +190,13 @@ class TidalSimulation(Simulation):
             mass_p = Variable('planet_mass', self.planet_mass.to(u.kg).value)
             initial_variables = [motion_p, omega_p, eccen_p, omega_s, mass_p]
 
-            print(f'\nStellar mass: {self.star_mass:.1f} Msun\n',
-                  f'Planet orbital period: {self.planet_orbperiod:.1f} days\n',
-                  f'Planetary mass: {self.planet_mass:.1f} Mjup\n',
-                  f'Planetary radius: {self.planet_radius.value:.1f} Rjup\n')
+            print(f'\nStar mass: {self.star_mass:.1f}\n',
+                  f'Star radius: {self.star_radius:.1f}\n',
+                  f'Star rotation period: {self.star_rotperiod:.1f}\n',
+                  f'Planet orbital period: {self.planet_orbperiod:.1f}\n',
+                  f'Planet mass: {self.planet_mass:.1f}\n',
+                  f'Planet radius: {self.planet_radius:.1f}\n',
+                  f'Planet eccentricity: {self.planet_eccentricity:.4f}\n')
 
         elif self.system == 'planet-moon':
             omega_p = Variable('omega_planet', self.planet_omega.value)
