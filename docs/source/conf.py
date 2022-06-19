@@ -3,7 +3,7 @@ import sys
 
 from distutils.util import convert_path
 sys.path.append(os.path.abspath(
-    os.path.join(__file__, "../../src/ploonetide")
+    os.path.join(__file__, "../../src/")
 ))
 
 
