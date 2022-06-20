@@ -325,20 +325,23 @@ def find_moon_fate(t, am, am_roche, ap_hill):
     try:
         pos = np.where(am <= am_roche)[0][0]
         rt_time = t[pos] / GYEAR
-        print(f'Moon crosses Roche radius in {rt_time:.4f} Gyr')
+        label = 'crosses'
+        print(f'Moon crosses Roche radius in {rt_time:.6f} Gyr')
     except IndexError:
         try:
             pos = np.where(am >= ap_hill)[0][0]
             rt_time = t[pos] / GYEAR
-            print(f'Moon escapes in {rt_time:.4f} Gyr')
+            label = 'escapes'
+            print(f'Moon escapes in {rt_time:.6f} Gyr')
         except IndexError:
             pos = -1
-            rt_time = np.max(t)
+            rt_time = np.max(t) / GYEAR
+            label = "stalls"
             print('Moon migrates too slow and never escapes or crosses Roche radius.')
 
-    Outputs = namedtuple('Outputs', 't index')
+    Outputs = namedtuple('Outputs', 't index label')
 
-    return Outputs(rt_time, pos)
+    return Outputs(rt_time, pos, label)
 
 def im_k2(T, omeg, densm, Mm, Rm, E_act, melt_fr, B, Ts, Tb, Tl):
 

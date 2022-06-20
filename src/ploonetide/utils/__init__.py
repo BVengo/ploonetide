@@ -4,6 +4,7 @@ import functools
 import numpy as np
 import matplotlib.collections as mcoll
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 from scipy.constants import G as Gconst
 
@@ -68,6 +69,13 @@ def set_xaxis_limits(ax, ax1):
     lim2 = ax1.get_xlim()
 
     return lim2[0] + (ax.get_xticks() - lim1[0]) / (lim1[1] - lim1[0]) * (lim2[1] - lim2[0])
+
+
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = mpl.colors.LinearSegmentedColormap.from_list(
+        'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
 
 
 def logged(func):

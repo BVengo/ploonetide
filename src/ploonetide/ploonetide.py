@@ -190,12 +190,12 @@ class TidalSimulation(Simulation):
             mass_p = Variable('planet_mass', self.planet_mass.to(u.kg).value)
             initial_variables = [motion_p, omega_p, eccen_p, omega_s, mass_p]
 
-            print(f'\nStar mass: {self.star_mass:.1f}\n',
-                  f'Star radius: {self.star_radius:.1f}\n',
-                  f'Star rotation period: {self.star_rotperiod:.1f}\n',
-                  f'Planet orbital period: {self.planet_orbperiod:.1f}\n',
-                  f'Planet mass: {self.planet_mass:.1f}\n',
-                  f'Planet radius: {self.planet_radius:.1f}\n',
+            print(f'\nStar mass: {self.star_mass:.3f}\n',
+                  f'Star radius: {self.star_radius:.3f}\n',
+                  f'Star rotation period: {self.star_rotperiod:.3f}\n',
+                  f'Planet orbital period: {self.planet_orbperiod:.3f}\n',
+                  f'Planet mass: {self.planet_mass:.3f}\n',
+                  f'Planet radius: {self.planet_radius:.3f}\n',
                   f'Planet eccentricity: {self.planet_eccentricity:.4f}\n')
 
         elif self.system == 'planet-moon':
@@ -209,17 +209,17 @@ class TidalSimulation(Simulation):
             if self.moon_eccentricity == 0.0:
                 initial_variables = [omega_p, motion_p, motion_m, temper_m, tidal_m]
 
-            print(f'\nStar mass: {self.star_mass:.1f}\n',
-                  f'Star radius: {self.star_radius:.1f}\n',
-                  f'Star rotation period: {self.star_rotperiod:.1f}\n',
-                  f'Planet orbital period: {self.planet_orbperiod:.1f}\n',
-                  f'Planet mass: {self.planet_mass:.1f}\n',
-                  f'Planet radius: {self.planet_radius:.1f}\n',
-                  f'Planet eccentricity: {self.planet_eccentricity:.1f}\n',
-                  f'Moon mass: {self.moon_mass:.1f}\n',
-                  f'Moon radius: {self.moon_radius:.1f}\n',
-                  f'Moon eccentricity: {self.moon_eccentricity:.1f}\n',
-                  f'Moon orbital period: {moon_semimaxis:.1f} a_roche ({self.moon_orbperiod:.1f})\n')
+            print(f'\nStar mass: {self.star_mass:.3f}\n',
+                  f'Star radius: {self.star_radius:.3f}\n',
+                  f'Star rotation period: {self.star_rotperiod:.3f}\n',
+                  f'Planet orbital period: {self.planet_orbperiod:.3f}\n',
+                  f'Planet mass: {self.planet_mass:.3f}\n',
+                  f'Planet radius: {self.planet_radius:.3f}\n',
+                  f'Planet eccentricity: {self.planet_eccentricity:.3f}\n',
+                  f'Moon mass: {self.moon_mass:.3f}\n',
+                  f'Moon radius: {self.moon_radius:.3f}\n',
+                  f'Moon eccentricity: {self.moon_eccentricity:.3f}\n',
+                  f'Moon orbital period: {moon_semimaxis:.3f} a_roche ({self.moon_orbperiod:.1f})\n')
 
         super().__init__(variables=initial_variables)
 
@@ -551,7 +551,7 @@ class TidalSimulation(Simulation):
     @property
     def planet_hill_radius(self):
         return u.Quantity(hill_radius(self.planet_semimaxis.to(u.m).value, self.planet_eccentricity,
-                                      self.planet_mass.to(u.kg).value, self.star_mass.to(u.kg).value), u.m).to(u.AU)
+                                      self.planet_mass.to(u.kg).value, self.star_mass.to(u.kg).value), u.m)
 
     # **********************************************************************************************
     # ******************************** MOON DYNAMICAL PROPERTIES ***********************************
