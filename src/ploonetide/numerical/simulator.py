@@ -73,7 +73,7 @@ class Simulation:
 
         if self.integration_method == 'lsoda':
             sols = odeint(self.calc_diff_eqs, self.quant_vec, tint,
-                          args=(self.diff_eq_kwargs,))
+                          args=(self.diff_eq_kwargs,), mxstep=100)
 
             return tint, sols
 

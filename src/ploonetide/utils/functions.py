@@ -373,7 +373,7 @@ def im_k2(T, omeg, densm, Mm, Rm, E_act, melt_fr, B, Ts, Tb, Tl):
 
 def mu_below_Ts():
 
-    return 50 * GYEAR
+    return 50 * const.giga
 
 
 def eta_below_Ts(T, E_act, eta_o=1.6E5):
