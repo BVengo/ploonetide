@@ -303,15 +303,7 @@ def dTmdt(q, t, parameters):
     melt_fr = parameters['melt_fr']
 
     # Dynamic parameter
-    nm = parameters['nm']
-
-    if parameters['em_ini'] == 0.0:
-        eccm = 0.0
-    else:
-        eccm = parameters['eccm']
-
-    dEdt = e_tidal(Tm, nm, densm=densm, Mm=Mm, Rm=Rm, E_act=E_act, melt_fr=melt_fr,
-                   B=B, Ts=Ts, Tb=Tb, Tl=Tl, eccm=eccm)
+    Em = parameters['Em']
 
     if Tm < Ts:
         eta = eta_below_Ts(Tm, E_act=E_act)
@@ -327,17 +319,15 @@ def dTmdt(q, t, parameters):
 
     # Calculation of convection
     kappa = ktherm / (densm * Cp)
-
-    C = Rac**0.25 / (2 * a2) * (alpha_exp * gravity(Mm, Rm) * densm
-                                / (eta * kappa * ktherm))**-0.25
-    qBL = (ktherm * (Tm - surf_temp(dEdt, Rm)) / C)**(4. / 3.)
+    C = (Rac * eta * kappa * ktherm / (alpha_exp * gravity(Mm, Rm) * densm))**0.25 / (2 * a2)
+    qBL = (ktherm * (Tm - surf_temp(Em, Rm)) / C)**(4. / 3.)
 
     # qBL = ktherm / 2. * (densm * gravity(Mm, Rm) * alpha_exp / (kappa * eta))**(1. / 3.) *\
-    #     (E_act / (Rg * Tm**2.))**(-4. / 3.)
+    #     (E_act / (gas_constant * Tm**2.))**(-4. / 3.)
 
     coeff = 4. / 3. * np.pi * (Rm**3. - (0.4 * Rm)**3.) * densm * Cp
 
-    dTdt = (-qBL + dEdt) / coeff
+    dTdt = (-qBL + Em) / coeff
 
     return [dTdt]
 
