@@ -381,7 +381,7 @@ def eta_below_Ts(T, E_act, eta_o=1.6E5):
     return eta_o * np.exp(E_act / (gas_constant * T))
 
 
-def mu_between_Ts_Tb(T, mu1=8.2e4, mu2=-40.6):
+def mu_between_Ts_Tb(T, mu1=8.2E4, mu2=-40.6):
 
     return 10**(mu1 / T + mu2)
 
@@ -393,22 +393,22 @@ def eta_between_Ts_Tb(T, E_act, melt_fr, B, eta_o=1.6E5):
 
 def mu_between_Tb_Tl():
 
-    return 1e-7
+    return 1E-7
 
 
 def eta_between_Tb_Tl(T, melt_fr):
 
-    return 1e-7 * np.exp(40000. / T) * (1.35 * melt_fr - 0.35)**(-5. / 2.)
+    return 1E-7 * np.exp(40000. / T) * (1.35 * melt_fr - 0.35)**(-5. / 2.)
 
 
 def mu_above_Tl():
 
-    return 1e-7
+    return 1E-7
 
 
 def eta_above_Tl(T):
 
-    return 1e-7 * np.exp(40000. / T)
+    return 1E-7 * np.exp(40000. / T)
 
 
 def e_tidal(T, nm, omeg=None, densm=None, Mm=None, Rm=None, E_act=300E3,
