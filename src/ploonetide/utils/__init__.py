@@ -2,9 +2,11 @@
 import logging
 import functools
 import numpy as np
+
 import matplotlib.collections as mcoll
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.colors as mcolors
 
 from scipy.constants import G as Gconst
 
@@ -22,6 +24,26 @@ class dict2obj(object):
         for attr in other.__dict__.keys():
             exec(f'self.{attr}=other.{attr}')
         return self
+
+
+def make_rgb_colormap():
+    """Return a LinearSegmentedColormap
+    seq: a sequence of floats and RGB-tuples. The floats should be increasing
+    and in the interval (0,1).
+    """
+    c = mcolors.ColorConverter().to_rgb
+    seq = [c('white'), c('lightblue'), 0.08, c('lightblue'), c('blue'), 0.2, c('blue'), c('green'),
+           0.4, c('green'), c('orange'), 0.6, c('orange'), c('red'), 1.0, c('red')]
+    seq = [(None,) * 3, 0.0] + list(seq) + [1.0, (None,) * 3]
+    cdict = {'red': [], 'green': [], 'blue': []}
+    for i, item in enumerate(seq):
+        if isinstance(item, float):
+            r1, g1, b1 = seq[i - 1]
+            r2, g2, b2 = seq[i + 1]
+            cdict['red'].append([item, r1, r2])
+            cdict['green'].append([item, g1, g2])
+            cdict['blue'].append([item, b1, b2])
+    return mcolors.LinearSegmentedColormap('CustomMap', cdict)
 
 
 def colorline(x, y, z=None, cmap='copper', linewidth=2, alpha=1.0):

@@ -1,10 +1,48 @@
 import numpy as np
 import warnings
 
-from scipy.integrate import odeint
-from tqdm import tqdm
+from scipy.integrate._ivp.base import OdeSolver
+from scipy.integrate import solve_ivp
+from tqdm.auto import tqdm
 
 __all__ = ['Variable', 'Simulation']
+
+
+# monkey patching the ode solvers with a progress bar
+
+# save the old methods - we still need them
+old_init = OdeSolver.__init__
+old_step = OdeSolver.step
+
+# define our own methods
+def new_init(self, fun, t0, y0, t_bound, vectorized=True, support_complex=False):
+
+    # define the progress bar
+    bar_format = '{desc}{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} steps | {elapsed}<{remaining}'
+    self.pbar = tqdm(desc='Progress: ', bar_format=bar_format, total=t_bound - t0, initial=t0)
+    self.last_t = t0
+
+    # call the old method - we still want to do the old things too!
+    old_init(self, fun, t0, y0, t_bound, vectorized, support_complex)
+
+
+def new_step(self):
+    # call the old method
+    old_step(self)
+
+    # update the bar
+    tst = self.t - self.last_t
+    self.pbar.update(tst)
+    self.last_t = self.t
+
+    # close the bar if the end is reached
+    if self.t >= self.t_bound:
+        self.pbar.close()
+
+
+# overwrite the old methods with our customized ones
+OdeSolver.__init__ = new_init
+OdeSolver.step = new_step
 
 
 class Variable:
@@ -54,78 +92,37 @@ class Simulation:
         self.diff_eq_kwargs = kwargs
         self.calc_diff_eqs = calc_diff_eqs
 
-    def set_integration_method(self, method='rk4'):
+    def set_integration_method(self, method='RK45'):
         """Define integration method for the simulation.
 
         Args:
-            method (str, optional): method to use ['rk4' or 'lsoda']
+            method (str, optional): method to use ['RK45', 'RK23', 'DOP853', 'Radau', 'BDF', 'LSODA']
         """
         self.integration_method = method
-
-    def integrator(self, t, dt):
-        """Calculate a new y vector
-
-        Params:
-            t: time. Only used if the DO depends on time (gravity doesn't).
-            dt: timestep. Non adaptive in this case.
-        """
-        tint = np.arange(0.000001, t, dt)  # Vector for time
-
-        if self.integration_method == 'lsoda':
-            sols = odeint(self.calc_diff_eqs, self.quant_vec, tint,
-                          args=(self.diff_eq_kwargs,), mxstep=100)
-
-            return tint, sols
-
-        if self.integration_method == 'rk4':
-            k1 = dt * np.array(self.calc_diff_eqs(self.quant_vec, t,
-                                                  self.diff_eq_kwargs))
-            k2 = dt * np.array(self.calc_diff_eqs(self.quant_vec + 0.5 * k1,
-                                                  t + 0.5 * dt,
-                                                  self.diff_eq_kwargs))
-            k3 = dt * np.array(self.calc_diff_eqs(self.quant_vec + 0.5 * k2,
-                                                  t + 0.5 * dt,
-                                                  self.diff_eq_kwargs))
-            k4 = dt * np.array(self.calc_diff_eqs(self.quant_vec + k3,
-                                                  t + dt,
-                                                  self.diff_eq_kwargs))
-
-            sols = self.quant_vec + (k1 + 2 * k2 + 2 * k3 + k4) / 6.
-
-            return sols
 
     def run(self, t, dt, t0=0.0):
         """Run simulation for the given variables.
 
-        Args:
+        Params:
             t (float): total time (in simulation units) to run the simulation. Can have units or not, just set has_units appropriately.
             dt (float): timestep (in simulation units) to advance the simulation. Same as above
             t0 (float, optional): set a non-zero start time to the simulation.
-
-        No Longer Returned:
-                None, but leaves an attribute history accessed via
-                'simulation.history' which contains all y vectors for the simulation.
-                These are of shape (Nstep,Nbodies * 6), so the x and y positions of particle 1 are
-                simulation.history[:,0], simulation.history[:,1], while the same for particle 2 are
-                simulation.history[:,6], simulation.history[:,7]. Velocities are also extractable.
         """
+
+        t_span = np.array([0.000001, t])
+        tint = np.arange(t_span[0], t_span[1], dt)  # Vector for time
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            if self.integration_method == 'lsoda':
-                self.history = self.integrator(t, dt)
-                pass
+            # sols = odeint(self.calc_diff_eqs, self.quant_vec, tint,
+            #               args=(self.diff_eq_kwargs,), mxstep=1000, mxordn=20)
 
-            if self.integration_method == 'rk4':
-                history = [self.quant_vec]
-                ts = [0.000001]
-                nsteps = int((t - t0) / dt)
-                fmt = '{desc}{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} steps | {elapsed}<{remaining}'
-                for i in tqdm(range(nsteps), desc='Progress: ', bar_format=fmt):
-                    y_new = self.integrator(0, dt)
-                    history.append(y_new)
-                    self.quant_vec = y_new
-                    t = ts[-1] + dt
-                    ts.append(t)
-                self.history = (np.array(ts), np.array(history))
-                pass
+            # nsteps = int((t - t0) / dt)
+            # for i in tqdm(range(nsteps), desc='Progress: ', bar_format=fmt):
+            self.bar_format = '{desc}{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} steps | {elapsed}<{remaining}'
+
+            sols = solve_ivp(self.calc_diff_eqs, t_span, self.quant_vec, vectorized=True, rtol=1E-20, min_step=1e-6,
+                             method=self.integration_method, args=(self.diff_eq_kwargs,), t_eval=tint)
+
+            self.history = sols.t, sols.y

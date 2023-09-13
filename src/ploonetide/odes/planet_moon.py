@@ -9,7 +9,7 @@ from ploonetide.utils.constants import GR, GCONST
 #############################################################
 # DIFFERENTIAL EQUATIONS
 #############################################################
-def dnmdt(q, t, parameters):
+def dnmdt(t, q, parameters):
     """Define the differential equation for the moon mean motion.
 
     Args:
@@ -67,7 +67,7 @@ def dnmdt(q, t, parameters):
     return [dnmdt]
 
 
-def demdt(q, t, parameters):
+def demdt(t, q, parameters):
     """Define the differential equation for the eccentricity of the moon.
 
     Args:
@@ -118,7 +118,7 @@ def demdt(q, t, parameters):
     return [demdt]
 
 
-def dopdt(q, t, parameters):
+def dopdt(t, q, parameters):
     """Define the differential equation for the rotational rate of the planet.
 
     Args:
@@ -174,7 +174,7 @@ def dopdt(q, t, parameters):
     return [dopdt]
 
 
-def dnpdt(q, t, parameters):
+def dnpdt(t, q, parameters):
     """Define the differential equation for the mean motion of the planet.
 
     Args:
@@ -225,117 +225,9 @@ def dnpdt(q, t, parameters):
 
 
 #############################################################
-# INTEGRATION OF THE TIDAL HEAT
-#############################################################
-def dEmdt(q, t, parameters):
-    """Define the differential equation for the tidal energy of the moon.
-
-    Args:
-        q (list): vector defining Em
-        t (float): time
-        parameters (dict): Dictionary that contains all the parameters for the ODEs.
-
-    Returns:
-        list: Tidal energy of the moon
-    """
-    E = q[0]
-
-    # General parameters
-    E_act = parameters['E_act']
-    B = parameters['B']
-    Ts = parameters['Ts']
-    Tb = parameters['Tb']
-    Tl = parameters['Tl']
-
-    # Moon parameters
-    densm = parameters['densm']
-    Mm = parameters['Mm']
-    Rm = parameters['Rm']
-    melt_fr = parameters['melt_fr']
-
-    # Dynamic parameters
-    Tm = parameters['Tm']
-    nm = parameters['nm']
-
-    if parameters['em_ini'] == 0.0:
-        eccm = 0.0
-    else:
-        eccm = parameters['eccm']
-
-    dEdt = e_tidal(Tm, nm, densm=densm, Mm=Mm, Rm=Rm, E_act=E_act, melt_fr=melt_fr, B=B, Ts=Ts,
-                   Tb=Tb, Tl=Tl, eccm=eccm)
-
-    return [dEdt]
-
-
-#############################################################
-# INTEGRATION OF THE TEMPERATURE
-#############################################################
-def dTmdt(q, t, parameters):
-    """Define the differential equation for the temperatue of the moon.
-
-    Args:
-        q (list): vector defining Tm
-        t (float): time
-        parameters (dict): Dictionary that contains all the parameters for the ODEs.
-
-    Returns:
-        list: Temperature of the moon
-    """
-    Tm = q[0]
-
-    # General parameters
-    E_act = parameters['E_act']
-    B = parameters['B']
-    Ts = parameters['Ts']
-    Tb = parameters['Tb']
-    Tl = parameters['Tl']
-    Cp = parameters['Cp']
-    ktherm = parameters['ktherm']
-    Rac = parameters['Rac']
-    a2 = parameters['a2']
-    alpha_exp = parameters['alpha_exp']
-
-    # Moon parameters
-    densm = parameters['densm']
-    Mm = parameters['Mm']
-    Rm = parameters['Rm']
-    melt_fr = parameters['melt_fr']
-
-    # Dynamic parameter
-    Em = parameters['Em']
-
-    if Tm < Ts:
-        eta = eta_below_Ts(Tm, E_act=E_act)
-
-    elif Ts <= Tm < Tb:
-        eta = eta_between_Ts_Tb(Tm, E_act=E_act, melt_fr=melt_fr, B=B)
-
-    elif Tb <= Tm < Tl:
-        eta = eta_between_Tb_Tl(Tm, melt_fr=melt_fr)
-
-    else:
-        eta = eta_above_Tl(Tm)
-
-    # Calculation of convection
-    kappa = ktherm / (densm * Cp)
-    C = (Rac * eta * kappa * ktherm / (alpha_exp * gravity(Mm, Rm) * densm))**0.25 / (2 * a2)
-    qBL = (ktherm * (Tm - surf_temp(Em, Rm)) / C)**(4. / 3.)
-
-    # qBL = ktherm / 2. * (densm * gravity(Mm, Rm) * alpha_exp / (kappa * eta))**(1. / 3.) *\
-    #     (E_act / (gas_constant * Tm**2.))**(-4. / 3.)
-
-    coeff = 4. / 3. * np.pi * (Rm**3. - (0.4 * Rm)**3.) * densm * Cp
-
-    dTdt = (-qBL + Em) / coeff
-
-    return [dTdt]
-
-
-#############################################################
 # INTEGRATION OF THE WHOLE SYSTEM
 #############################################################
-def solution_planet_moon(q, t, parameters):
+def solution_planet_moon(t, q, parameters):
     """Define the coupled differential equation for the system of EDOs.
 
     Args:
@@ -349,29 +241,23 @@ def solution_planet_moon(q, t, parameters):
     op = q[0]
     npp = q[1]
     nm = q[2]
-    Tm = q[3]
-    Em = q[4]
 
     if parameters['em_ini'] != 0.0:
-        eccm = q[5]
+        eccm = q[3]
         parameters['eccm'] = eccm
 
     parameters['nm'] = nm
     parameters['op'] = op
     parameters['npp'] = npp
-    parameters['Tm'] = Tm
-    parameters['Em'] = Em
 
-    dopdtp = dopdt([op], t, parameters)
-    dnpdtp = dnpdt([npp], t, parameters)
-    dnmdtm = dnmdt([nm], t, parameters)
-    dTmdtm = dTmdt([Tm], t, parameters)
-    dEmdtm = dEmdt([Em], t, parameters)
+    dopdtp = dopdt(t, [op], parameters)
+    dnpdtp = dnpdt(t, [npp], parameters)
+    dnmdtm = dnmdt(t, [nm], parameters)
 
-    solution = dopdtp + dnpdtp + dnmdtm + dTmdtm + dEmdtm
+    solution = dopdtp + dnpdtp + dnmdtm
 
     if parameters['em_ini'] != 0.0:
-        demdtm = demdt([eccm], t, parameters)
-        solution = dopdtp + dnpdtp + dnmdtm + dTmdtm + dEmdtm + demdtm
+        demdtm = demdt(t, [eccm], parameters)
+        solution = dopdtp + dnpdtp + dnmdtm + demdtm
 
     return solution

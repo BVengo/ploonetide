@@ -39,6 +39,7 @@ h5py = ">=1.0"
 tqdm = ">=4.25.0"
 jupyterlab = ">=3.4.3"
 ipython = ">=8.4.0"
+ipywidgets = ">=8.0"
 
 [tool.poetry.dev-dependencies]
 bumpver = ">=1.0"

@@ -265,9 +265,9 @@ def density(M, R):
     return M / (4. / 3 * np.pi * R**3.)
 
 
-def surf_temp(dEdt, Rm):
+def surf_temp(flux):
 
-    return (dEdt / (4. * np.pi * Rm**2. * stefan_b_constant))**0.25
+    return (flux / stefan_b_constant)**0.25
 
 
 def stellar_lifespan(Ms):
@@ -324,101 +324,486 @@ def power(ee, aa, KQ, Ms, Rp):
 def find_moon_fate(t, am, am_roche, ap_hill):
     try:
         pos = np.where(am <= am_roche)[0][0]
-        rt_time = t[pos] / GYEAR
+        rt_time = t[pos] / MYEAR
         label = 'crosses'
-        print(f'Moon {label} Roche radius in {rt_time:.6f} Gyr')
+        print(f'Moon {label} the Roche limit in {rt_time:.6f} Myr')
     except IndexError:
         try:
             pos = np.where(am >= ap_hill)[0][0]
-            rt_time = t[pos] / GYEAR
+            rt_time = t[pos] / MYEAR
             label = 'escapes'
-            print(f'Moon {label} in {rt_time:.6f} Gyr')
+            print(f'Moon {label} from the planetary Hill radius in {rt_time:.6f} Myr')
         except IndexError:
             pos = -1
-            rt_time = np.max(t) / GYEAR
+            rt_time = np.max(t) / MYEAR
             label = "stalls"
-            print('Moon migrates too slow and never escapes or crosses Roche radius.')
+            print('Moon migrates too slow and never escapes the Hill radius or crosses the Roche limit.')
 
-    Outputs = namedtuple('Outputs', 't index label')
+    Outputs = namedtuple('Outputs', 'time index label')
 
     return Outputs(rt_time, pos, label)
 
-def im_k2(T, omeg, densm, Mm, Rm, E_act, melt_fr, B, Ts, Tb, Tl):
 
-    if T < Ts:
-        mu = mu_below_Ts()
-        eta = eta_below_Ts(T, E_act=E_act)
-
-    elif Ts <= T < Tb:
-        mu = mu_between_Ts_Tb(T)
-        eta = eta_between_Ts_Tb(T, E_act=E_act, melt_fr=melt_fr, B=B)
-
-    elif Tb <= T < Tl:
-        mu = mu_between_Tb_Tl()
-        eta = eta_between_Tb_Tl(T, melt_fr=melt_fr)
-
-    else:
-        mu = mu_above_Tl()
-        eta = eta_above_Tl(T)
-
-    numerator = 57 * eta * omeg
-
-    deno_brackets = 1. + (1. + 19. * mu
-                          / (2. * densm * gravity(Mm, Rm) * Rm))**2. * (eta * omeg / mu)**2.
-
-    denominator = 4 * densm * gravity(Mm, Rm) * Rm * deno_brackets
-
-    return -numerator / denominator
+# def cross_roche_limit(t, y):
+#     return meanMotion()
 
 
-def mu_below_Ts():
-
+def mu_below_T_solidus():
+    # Shear modulus [Pa]
     return 50 * const.giga
 
 
-def eta_below_Ts(T, E_act, eta_o=1.6E5):
+def eta_o(E_act):
+    # Viscosity [Pa s]
+    # defining viscosity for Earth at T0 = 1000K [Pa*s] (Henning et al 2009)
+    eta_set = 1e22
+    # eta_set = 1e19 # defining viscosity for Mars at T0 = 1600K [Pa*s] (Shoji & Kurita 2014)
+    T0 = 1000.  # defining temperature
+    return eta_set / np.exp(E_act / (gas_constant * T0))
 
-    return eta_o * np.exp(E_act / (gas_constant * T))
+def eta_below_T_solidus(T, E_act):
+
+    return eta_o(E_act=E_act) * np.exp(E_act / (gas_constant * T))
 
 
-def mu_between_Ts_Tb(T, mu1=8.2E4, mu2=-40.6):
-
+def mu_between_T_solidus_T_breakdown(T, mu1=8.2E4, mu2=-40.6):
+    # Fischer & Spohn (1990), Eq. 16
     return 10**(mu1 / T + mu2)
 
 
-def eta_between_Ts_Tb(T, E_act, melt_fr, B, eta_o=1.6E5):
+def eta_between_T_solidus_T_breakdown(T, E_act, melt_fr, B):
+    # Moore (2003)
+    return eta_o(E_act=E_act) * np.exp(E_act / (gas_constant * T)) * np.exp(-B * melt_fr)
 
-    return eta_o * np.exp(E_act / (gas_constant * T)) * np.exp(-B * melt_fr)
 
-
-def mu_between_Tb_Tl():
-
+def mu_between_T_breakdown_T_liquidus():
+    # Moore (2003)
     return 1E-7
 
 
-def eta_between_Tb_Tl(T, melt_fr):
-
+def eta_between_T_breakdown_T_liquidus(T, melt_fr):
+    # Moore (2003)
     return 1E-7 * np.exp(40000. / T) * (1.35 * melt_fr - 0.35)**(-5. / 2.)
 
 
-def mu_above_Tl():
-
+def mu_above_T_liquidus():
+    # Moore (2003)
     return 1E-7
 
 
-def eta_above_Tl(T):
-
+def eta_above_T_liquidus(T):
+    # Moore (2003)
     return 1E-7 * np.exp(40000. / T)
 
 
-def e_tidal(T, nm, omeg=None, densm=None, Mm=None, Rm=None, E_act=300E3,
-            melt_fr=0.5, B=25, Ts=1600, Tb=1800, Tl=2000, Mp=None, eccm=None):
+def tidal_heat(T, nm, eccm, parameters):
 
-    term_1 = -10.5 * im_k2(T, omeg=nm, densm=densm, Mm=Mm, Rm=Rm, E_act=E_act, melt_fr=melt_fr,
-                           B=B, Ts=Ts, Tb=Tb, Tl=Tl)
+    # General parameters
+    E_act = parameters['E_act']
+    B = parameters['B']
+    T_solidus = parameters['T_solidus']
+    T_breakdown = parameters['T_breakdown']
+    T_liquidus = parameters['T_liquidus']
 
-    term_2 = Rm**5. * nm**5. * eccm**2. / GCONST
+    # Moon properties
+    Rm = parameters['Rm']  # Moon radius [m]
+    rigidm = parameters['rigidm']  # Effective rigidity of the moon [m^-1 s^-2]
 
-    dedt = term_1 * term_2
+    # Orbital angular frequency of the moon [1/s]
+    freq = nm
 
-    return dedt
+    if T > T_solidus:
+        # melt_fraction: Fraction of melt for ice [No unit]
+        melt_fr = (T - T_solidus) / (T_liquidus - T_solidus)  # melt fraction
+
+    if T <= T_solidus:
+        mu = mu_below_T_solidus()
+        eta = eta_below_T_solidus(T, E_act=E_act)
+
+    elif T_solidus < T <= T_breakdown:
+        mu = mu_between_T_solidus_T_breakdown(T)
+        eta = eta_between_T_solidus_T_breakdown(T, E_act=E_act, melt_fr=melt_fr, B=B)
+
+    elif T_breakdown < T <= T_liquidus:
+        mu = mu_between_T_breakdown_T_liquidus()
+        eta = eta_between_T_breakdown_T_liquidus(T, melt_fr=melt_fr)
+
+    else:
+        mu = mu_above_T_liquidus()
+        eta = eta_above_T_liquidus(T)
+
+    # Imaginary part of the second order Love number, Maxwell model (Henning et al. 2009, table 1)
+    if mu == 0:
+        k2_Im = 0.
+    else:
+        numerator = -57 * eta * freq
+
+        denominator = 4 * rigidm * (1. + (1. + 19. * mu / (2. * rigidm))**2. * (eta * freq / mu)**2.)
+
+        k2_Im = numerator / denominator
+
+    # tidal surface flux of the moon [W/m^2] (Fischer & Spohn 1990)
+    h_m = (-21. / 2. * k2_Im * Rm**5. * nm**5. * eccm**2. / GCONST) / (4. * np.pi * Rm**2.)
+
+    return (h_m, eta)
+
+
+def convection_heat(T, eta, parameters):
+
+    # General parameters
+    Cp = parameters['Cp']
+    ktherm = parameters['ktherm']
+    Rac = parameters['Rac']
+    a2 = parameters['a2']
+    alpha_exp = parameters['alpha_exp']
+    d_mantle = parameters['d_mantle']
+    T_surface = parameters['T_surface']
+
+    # Moon properties
+    rho_m = parameters['densm']  # Density of the moon [kg m^-3]
+    g_m = parameters['gravm']  # Gravity of the moon [m s^-2]
+
+    error = False
+
+    delta = 30000.  # Initial guess for boudary layer thickness [m]
+    kappa = ktherm / (rho_m * Cp)  # Thermal diffusivity [m^2/s]
+
+    if T == 288.:
+        print("___error1___: T = T_surf --> q_BL = 0")
+        q_BL = 0
+        error = True
+
+    if error:
+        return q_BL
+
+    q_BL = ktherm * ((T - T_surface) / delta)  # convective heat flux [W/m^2]
+
+    prev = q_BL + 1.
+
+    difference = abs(q_BL - prev)
+
+    # Iteration for calculating q_BL:
+    while difference > 10e-10:
+        prev = q_BL
+
+        Ra = alpha_exp * g_m * rho_m * d_mantle**4 * q_BL / (eta * kappa * ktherm)  # Rayleigh number
+
+        # Thickness of the conducting boundary layer [m]
+        delta = d_mantle / (2. * a2) * (Ra / Rac)**(-1. / 4.)
+
+        q_BL = ktherm * ((T - T_surface) / delta)  # convective heat flux [W/m^2]
+
+        difference = abs(q_BL - prev)
+
+    return q_BL
+
+
+def check(difference, prev):
+
+    if difference < 0 and prev > 0:
+        T_stable = True
+    elif difference == 0 and prev > 0:
+        T_stable = True
+    elif difference > 0 and prev < 0:
+        T_stable = False
+    elif difference == 0 and prev < 0:
+        T_stable = False
+    else:
+        T_stable = -1
+
+    return T_stable
+
+
+def intersection(a, b, nm, eccm, parameters):
+
+    done = False
+    again = False
+    error = False
+
+    T_equilibrium = 0
+    i = 0
+    unstable = 0
+    c = (a + b) / 2.
+
+    while abs(a - c) >= 0.1:  # 0.1K error allowed
+
+        i = i + 1
+
+        f1a, eta = tidal_heat(a, nm, eccm, parameters)
+        f2a = convection_heat(a, eta, parameters)
+
+        f1c, eta = tidal_heat(c, nm, eccm, parameters)
+        f2c = convection_heat(c, eta, parameters)
+
+        if f2a == 0 or f2c == 0:
+            error = True
+            T_equilibrium = -1
+            return T_equilibrium
+
+        fa = f1a - f2a
+
+        fc = f1c - f2c
+
+        if (fa * fc) < 0:
+            b = c
+            c = (a + b) / 2.
+
+        elif (fa * fc) > 0:
+            a = c
+            c = (a + b) / 2.
+
+        elif (fa * fc) == 0:
+            if fa == 0:
+                f1a, eta = tidal_heat((a - 0.1), nm, eccm, parameters)
+                f2a = convection_heat((a - 0.1), eta, parameters)
+                stab = check((f1c - f2c), (f1a - f2a))
+                if stab:
+                    T_equilibrium = a
+                    done = True
+                elif not stab:
+                    a = a + 0.01
+                    unstable = 1
+                    again = True
+                else:
+                    T_equilibrium = -3
+                    error = True
+            if fc == 0:
+                f1c, eta = tidal_heat((c + 0.1), nm, eccm, parameters)
+                f2c = convection_heat((c + 0.1), eta, parameters)
+                stab = check((f1c - f2c), (f1a - f2a))
+                if stab:
+                    T_equilibrium = c
+                    done = True
+                elif not stab:
+                    a = c + 0.01
+                    unstable = 1
+                    again = True
+                else:
+                    T_equilibrium = -3
+                    error = True
+
+        if done:
+            break
+        if again:
+            break
+        if error:
+            break
+
+    if error:
+        if T_equilibrium == -3:
+            print("___error3___: T_equilibrium not found??")
+
+    return (T_equilibrium, a, b, again, unstable)
+
+
+def bisection(nm, eccm, parameters):
+
+    # General parameters
+    T_breakdown = parameters['T_breakdown']
+    T_liquidus = parameters['T_liquidus']
+
+    a0 = 600.                  # ################ ASK ABOUT THIS OBSCURE PARAMETER #############
+    b0 = T_liquidus
+    a = a0
+    b = T_breakdown
+    error = False
+    # done = False
+    again = False
+    T_equilibrium = 0
+    i = 0
+
+    c = (a + b) / 2.
+
+    # Find the peak of h_m (derivative=0):
+    while abs(a - c) >= 0.01:  # 0.01K error allowed
+
+        i = i + 1
+
+        f1a, eta = tidal_heat(a, nm, eccm, parameters)
+        f1c, eta = tidal_heat(c, nm, eccm, parameters)
+        f1da, eta = tidal_heat((a + 0.001), nm, eccm, parameters)
+        f1dc, eta = tidal_heat((c + 0.001), nm, eccm, parameters)
+
+        df1a = (f1da - f1a) / (a + 0.001 - a)
+        df1c = (f1dc - f1c) / (c + 0.001 - c)
+
+        if (df1a * df1c) < 0:
+            b = c
+            c = (a + b) / 2.
+
+        elif (df1a * df1c) > 0:
+            a = c
+            c = (a + b) / 2.
+
+        elif (df1a * df1c) == 0:
+            if df1a == 0:
+                peak = a
+            if df1c == 0:
+                peak = c
+
+    if b == T_breakdown:
+        T_equilibrium = -5
+        error = True
+    else:
+        f1a, eta = tidal_heat(a, nm, eccm, parameters)
+        f1b, eta = tidal_heat(b, nm, eccm, parameters)
+        peak = (a + b) / 2.
+
+    if error:
+        if T_equilibrium == -5:
+            print("___error5___: no peak of tidal heat flux??")
+            return T_equilibrium
+
+    # Find T_stab between the peak and b0:
+    a = peak
+    b = b0
+    un1 = 0
+    un2 = 0
+
+    T_equilibrium, a, b, again, unstable = intersection(a, b, nm, eccm, parameters)
+
+    if T_equilibrium == -3:
+        return T_equilibrium
+
+    un1 = unstable
+
+    if T_equilibrium != 0:
+        return T_equilibrium
+    elif b == b0:    # T_equilibrium not found or does not exist
+        b = peak
+        a = a0
+        again = True    # try again below the peak
+    elif un1 == 0:
+        f1a, eta = tidal_heat(a, nm, eccm, parameters)
+        f2a = convection_heat(a, eta, parameters)
+
+        f1b, eta = tidal_heat(b, nm, eccm, parameters)
+        f2b = convection_heat(b, eta, parameters)
+
+        if f2a == 0 or f2b == 0:
+            error = True
+            T_equilibrium = -1
+
+        stab = check((f1b - f2b), (f1a - f2a))
+
+        if stab:
+            T_equilibrium = (a + b) / 2.    # stable point (T_stab) is found
+            return T_equilibrium
+        elif not stab:    # unstable point is found
+            a = b
+            b = b0
+            un1 = un1 + 1
+            again = True    # try again above the unstable point
+        else:
+            T_equilibrium = -3
+            error = True
+
+    if error:
+        if T_equilibrium == -3:
+            print("___error3___: T_equilibrium not found??")
+        return T_equilibrium
+
+    # Search for T_stab again (below the peak or above the unstable point)
+    if again:
+
+        T_equilibrium, a, b, again, unstable = intersection(a, b, nm, eccm, parameters)
+
+        if T_equilibrium == -3:
+            return T_equilibrium
+
+        un2 = unstable
+
+        if T_equilibrium != 0:
+            return T_equilibrium
+        elif b == b0:    # T_unstab is found, but T_stab is not found
+            return T_equilibrium  # This is because the unstable and stable points are too close
+        elif b == peak:    # T_equilibrium does not exist
+            return T_equilibrium
+        elif un2 == 0:
+            f1a, eta = tidal_heat(a, nm, eccm, parameters)
+            f2a = convection_heat(a, eta, parameters)
+
+            f1b, eta = tidal_heat(b, nm, eccm, parameters)
+            f2b = convection_heat(b, eta, parameters)
+
+            if f2a == 0 or f2b == 0:
+                error = True
+                T_equilibrium = -1
+
+            stab = check((f1b - f2b), (f1a - f2a))
+
+            if stab:
+                T_equilibrium = (a + b) / 2.  # stable point (T_stab) is found
+                return T_equilibrium
+            elif not stab:  # unstable point is found
+                if un1 == 0:
+                    a = b
+                    b = peak
+                    un2 = un2 + 1
+                    again = True  # try again above the unstable point
+                else:
+                    T_equilibrium = -2
+                    error = True
+            else:
+                T_equilibrium = -3
+                error = True
+
+        # T_equilibrium does not exist (no intersection)
+        if un1 == 0 and un2 == 0 and T_equilibrium == 0:
+            return T_equilibrium
+
+        if error:
+            if T_equilibrium == -2:
+                print("___error2___: two unstable equilibrium points??")
+            if T_equilibrium == -3:
+                print("___error3___: T_equilibrium not found??")
+            return T_equilibrium
+
+        if again:
+            T_equilibrium, a, b, again, unstable = intersection(a, b, nm, eccm, parameters)
+
+            if T_equilibrium == -3:
+                return T_equilibrium
+
+            un3 = unstable
+
+            if T_equilibrium != 0:
+                return T_equilibrium
+            # T_unstab is found, but T_stab is not found (or does not exist?)
+            elif b == peak:
+                T_equilibrium = -6
+                error = True
+            elif un3 == 0:
+                f1a, eta = tidal_heat(a, nm, eccm, parameters)
+                f2a = convection_heat(a, eta, parameters)
+
+                f1b, eta = tidal_heat(b, nm, eccm, parameters)
+                f2b = convection_heat(b, eta, parameters)
+
+                if f2a == 0 or f2b == 0:
+                    error = True
+                    T_equilibrium = -1
+
+                stab = check((f1b - f2b), (f1a - f2a))
+
+                if stab:
+                    T_equilibrium = (a + b) / 2.    # stable point (T_stab) is found
+                    return T_equilibrium
+                elif not stab:    # unstable point is found
+                    T_equilibrium = -2
+                    error = True    # two unstable points
+                else:
+                    T_equilibrium = -3
+                    error = True
+
+            if error:
+                if T_equilibrium == -2:
+                    print("___error2___: two unstable equilibrium points??")
+                if T_equilibrium == -3:
+                    print("___error3___: T_equilibrium not found??")
+                if T_equilibrium == -6:
+                    print("___error6___: T_unstab is found, but T_stab is not found")
+                return T_equilibrium
+
+    print(T_equilibrium)
+    return T_equilibrium

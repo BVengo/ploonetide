@@ -82,6 +82,8 @@ nbsphinx_timeout = 300
 
 # -- Options for HTML output ----------------------------------------------
 # html_theme = 'pydata_sphinx_theme'
+html_theme = 'sphinx_rtd_theme'
+
 html_theme_options = {
     "external_links": [],
     "github_url": "https://github.com/JAAlvarado-Montes/ploonetide",
