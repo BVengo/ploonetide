@@ -56,9 +56,9 @@ sphinxcontrib-restbuilder = ">=0.2"
 pydata-sphinx-theme = ">=0.7.1"
 pylint = ">=2.6.0"
 ghp-import = ">=1.0.1"
-ipython
-ipywidgets
-jupyterlab
+ipython = ">=1.0"
+ipywidgets = ">=1.0"
+jupyterlab = ">=1.0"
 
 
 [build-system]
