@@ -37,7 +37,6 @@ mechanicalsoup = ">=1.0"
 beautifulsoup4 = ">=1.0"
 h5py = ">=1.0"
 tqdm = ">=4.25.0"
-jupyterlab = ">=3.4.3"
 
 [tool.poetry.dev-dependencies]
 bumpver = ">=1.0"
@@ -57,8 +56,9 @@ sphinxcontrib-restbuilder = ">=0.2"
 pydata-sphinx-theme = ">=0.7.1"
 pylint = ">=2.6.0"
 ghp-import = ">=1.0.1"
-ipython = ">=8.4.0"
-ipywidgets = ">=8.0"
+ipython
+ipywidgets
+jupyterlab
 
 
 [build-system]
