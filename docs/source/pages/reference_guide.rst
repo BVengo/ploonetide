@@ -2,5 +2,5 @@ Reference Guide
 ===============
 
 
-.. automodule:: ploonetide.ploonetide
+.. automodule:: ploonetide
     :members:
