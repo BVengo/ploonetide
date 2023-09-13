@@ -71,7 +71,7 @@ testpaths = [
     "src",
 ]
 
-requires-python = ">=3.6"
+requires-python = ">=3.10"
 
 [tool.bumpver]
 current_version = "1.0.1"
