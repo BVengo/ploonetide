@@ -1,4 +1,4 @@
-.. _reference_guide:
+.. _ploonetide modules:
 
 
 ploonetide modules
@@ -7,11 +7,11 @@ ploonetide modules
 TidalSimulation Class
 ---------------------
 
-   .. autoclass:: ploonetide.ploonetide.TidalSimulation
-    :members:
+.. autoclass:: ploonetide.ploonetide.TidalSimulation
+   :members:
 
 utils
 -----
 
 .. automodule:: ploonetide.utils.functions
-    :members:
+   :members:
