@@ -14,5 +14,5 @@ ploonetide modules
 utils
 -----
 
-.. automodule:: ploonetide.utils
+.. automodule:: ploonetide.utils.functions
     :members:
