@@ -61,22 +61,22 @@ def k2Q_planet_envelope(alpha, beta, epsilon):
 def k2Q_planet_core(G, alpha, beta, Mp, Rp):
     """Calculates the tidal heat function of a planet's rigid core (Source: Mathis, 2015).
 
-    Parameters
-    ----------
-    G : `float`
+    Args
+    ----
+    G : float
         planet's core rigidity
-    alpha : `float`
+    alpha : float
         planet's core size fraction [Rc/Rp]
-    beta : `float`
+    beta : float
         planet's core mass fraction [Mc/Mp]
-    Mp : `float`
+    Mp : float
         planet's mass [kg]
-    Rp : `float`
+    Rp : float
         planet's radius [m]
 
     Returns
     -------
-    tidal heat function : `float`
+    tidal heat function : float
         Tidal heat function of a rigid core for the planet.
     """
     gamma = alpha**3.0 * (1 - beta) / (beta * (1 - alpha**3.0))
