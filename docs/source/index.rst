@@ -40,6 +40,15 @@ Reference guide
 .. toctree::
    :maxdepth: 1
 
+TidalSimulation Class
+=====================
+
+   .. autoclass:: ploonetide.ploonetide.TidalSimulation
+    :members:
+
+.. toctree::
+   :maxdepth: 2
+
    pages/reference_guide
 
 

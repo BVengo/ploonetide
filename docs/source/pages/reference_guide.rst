@@ -1,17 +1,8 @@
-Modules
-=======
-
-
-.. autoclass:: ploonetide.ploonetide.TidalSimulation
-    :members:
-
+ploonetide modules
+==================
 
 utils
-=====
-
-
-.. automodule:: ploonetide.utils.functions
-    :members:
+-----
 
 .. automodule:: ploonetide.utils
     :members:
