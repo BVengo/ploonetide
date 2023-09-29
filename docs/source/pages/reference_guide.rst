@@ -1,5 +1,3 @@
-.. _reference_guide:
-
 Modules
 =======
 
@@ -9,7 +7,11 @@ Modules
 
 
 utils
------
+=====
+
 
 .. automodule:: ploonetide.utils.functions
+    :members:
+
+.. automodule:: ploonetide.utils
     :members:
