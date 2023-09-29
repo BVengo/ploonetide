@@ -1,5 +1,7 @@
-Reference Guide
-===============
+.. _reference_guide:
+
+Modules
+=======
 
 
 .. autoclass:: ploonetide.ploonetide.TidalSimulation
