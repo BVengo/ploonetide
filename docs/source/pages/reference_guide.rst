@@ -1,3 +1,9 @@
+TidalSimulation Class
+=====================
+
+   .. autoclass:: ploonetide.ploonetide.TidalSimulation
+    :members:
+
 ploonetide modules
 ==================
 
