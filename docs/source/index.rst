@@ -8,6 +8,8 @@ The first thing to do is install ploonetide and make sure it's working properly.
 
 .. toctree::
    :maxdepth: 1
+   :caption: Contents:
+   :glob:
 
    pages/installation
 
