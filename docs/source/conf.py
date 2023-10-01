@@ -108,7 +108,7 @@ html_title = "Ploonetide "
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "defaul.css"
 html_static_path = ['_static']
-html_logo = '_static/images/logo.png'
+html_logo = '_static/images/logo_nobkg.png'
 
 
 # Raw files we want to copy using the sphinxcontrib-rawfiles extension:
