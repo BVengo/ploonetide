@@ -91,7 +91,7 @@ nbsphinx_execute = "auto"
 # Some notebook cells take longer than 60 seconds to execute
 nbsphinx_timeout = 300
 
-# -- Options for HTML output ----------------------------------------------
+# -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.

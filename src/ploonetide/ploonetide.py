@@ -29,7 +29,7 @@ class TidalSimulation(Simulation):
 
     Parameters
     ----------
-    system : str, optional
+    system : `str`, optional
         Flag to choose type of system. Either 'star-planet' or 'planet-moon'
     moon_albedo : float, optional
         Moon albedo [No unit]
