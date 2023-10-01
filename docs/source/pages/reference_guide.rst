@@ -1,17 +1,20 @@
 .. _ploonetide modules:
 
 
+
+******************
 ploonetide modules
-==================
+******************
+
 
 TidalSimulation Class
----------------------
+=====================
 
 .. autoclass:: ploonetide.ploonetide.TidalSimulation
    :members:
 
 Ordinary Differential Equations
--------------------------------
+===============================
 
 .. _planet_moon_module:
 
@@ -25,7 +28,9 @@ Ordinary Differential Equations
 
 
 utils
------
+=====
+
+.. _functions_module:
 
 .. automodule:: ploonetide.utils.functions
    :members:
