@@ -13,8 +13,12 @@ TidalSimulation Class
 Ordinary Differential Equations
 -------------------------------
 
+.. _planet_moon_module:
+
 .. automodule:: ploonetide.odes.planet_moon
    :members:
+
+.. _star_planet_module:
 
 .. automodule:: ploonetide.odes.star_planet
    :members:
