@@ -6,14 +6,6 @@ sys.path.append(os.path.abspath(
     os.path.join(__file__, "../../src/")
 ))
 
-
-# extensions = [
-#     "sphinx.ext.autodoc",
-#     "sphinx.ext.viewcode",
-#     "sphinx.ext.githubpages",
-#     "sphinx.ext.napoleon",
-# ]
-
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
@@ -104,6 +96,7 @@ html_theme_options = {
 html_title = "Ploonetide "
 
 html_static_path = ['_static']
+html_logo = '_static/images/logo.png'
 
 
 # Raw files we want to copy using the sphinxcontrib-rawfiles extension:
