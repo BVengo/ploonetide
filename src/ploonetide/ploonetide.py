@@ -27,8 +27,8 @@ __all__ = ['TidalSimulation']
 class TidalSimulation(Simulation):
     """This class defines a tidal simulation.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     system : `str`, optional
         Flag to choose type of system. Either 'star-planet' or 'planet-moon'
     moon_albedo : `float`, optional
