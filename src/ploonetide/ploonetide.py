@@ -27,69 +27,69 @@ __all__ = ['TidalSimulation']
 class TidalSimulation(Simulation):
     """This class defines a tidal simulation.
 
-    Parameters
-    ----------
+    Args:
+    -----
     system : `str`, optional
         Flag to choose type of system. Either 'star-planet' or 'planet-moon'
-    moon_albedo : float, optional
+    moon_albedo : `float`, optional
         Moon albedo [No unit]
-    moon_temperature : float
+    moon_temperature : `float`
         Temperature of the moon [K]
-    planet_alpha : float, optional
+    planet_alpha : `float`, optional
         Planet's radius aspect ratio [No unit]
-    planet_angular_coeff : float, optional
+    planet_angular_coeff : `float`, optional
         Planet's mass fraction for angular momentum exchange [No unit]
-    planet_beta : float, optional
+    planet_beta : `float`, optional
         Planet's mass aspect ratio [No unit]
-    planet_roche_radius : float
+    planet_roche_radius : `float`
         Roche radius of the planet [m]
-    planet_rotperiod : float, optional
+    planet_rotperiod : `float`, optional
         Planetary rotation period [d]
-    star_alpha : float, optional
+    star_alpha : `float`, optional
         Stellar radius aspect ratio [No unit]
-    star_angular_coeff : float, optional
+    star_angular_coeff : `float`, optional
         Star's mass fraction for angular momentum exchange [No unit]
-    star_beta : float, optional
+    star_beta : `float`, optional
         Stellar mass aspect ratio [No unit]
-    moon_density : float
+    moon_density : `float`
         Density of the moon [kg * m^-3]
-    moon_meanmo : float
+    moon_meanmo : `float`
         Initial mean motion of the moon [s^-1]
-    moon_radius : int, optional
+    moon_radius : `float`, optional
         Moon radius [Rearth]
-    moon_roche_radius : float
+    moon_roche_radius : `float`
         Roche radius of the moon [m]
-    moon_semimaxis : None, optional
+    moon_semimaxis : `None`, optional
         Moon's semi-major axis [a_Roche]
-    moon_temperature : float
+    moon_temperature : `float`
         Temperature of the moon [K]
-    planet_epsilon : float
+    planet_epsilon : `float`
         Epsilon rate of the planet [s^-1]
-    planet_k2q : float
+    planet_k2q : `float`
         Tidal heat function of the planet [J^-1]
-    planet_meanmo : float
+    planet_meanmo : `float`
         Initial mean motion of the planet [s^-1]
-    planet_omega : float
+    planet_omega : `float`
         Initial rotational rate of the planet [s^-1]
-    planet_roche_radius : float
+    planet_roche_radius : `float`
         Roche radius of the planet [m]
-    planet_semimaxis : float
+    planet_semimaxis : `float`
         Semi-major axis of the planet [m]
-    star_alpha : float, optional
+    star_alpha : `float`, optional
         Stellar radius aspect ratio [No unit]
-    star_beta : float, optional
+    star_beta : `float`, optional
         Stellar mass aspect ratio [No unit]
-    star_epsilon : float
+    star_epsilon : `float`
         Description
-    star_k2q : float
+    star_k2q : `float`
         Tidal heat function of the star [J^-1]
-    star_luminosity : float
+    star_luminosity : `float`
         Stellar luminosity [W]
-    star_omega : float
+    star_omega : `float`
         Description
-    star_saturation_period : float
+    star_saturation_period : `float`
         Saturation period for the stellar rotation [s]
-    stellar_lifespan : float
+    stellar_lifespan : `float`
         Lifespan of the star
     """
 
